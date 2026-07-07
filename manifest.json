@@ -103,5 +103,12 @@
     "commit": "067d7832a8cc4da3888d9aad8ee7f38467d7f9cc",
     "version": "0.36.1",
     "synced_at": "2026-07-07T12:40:10Z"
+  },
+  "agent-mcp-host": {
+    "repo": "shhac/agent-mcp-host",
+    "tag": "v0.6.3",
+    "commit": "4117f25b7a08db04eb8953538fd58cbe7dca152a",
+    "version": "0.6.3",
+    "synced_at": "2026-07-07T12:49:53Z"
   }
 }
