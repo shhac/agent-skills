@@ -65,10 +65,9 @@ GitHub workflow, never edited in place.
 
 `scripts/sync-skill.sh` (run by the workflow in this repo's checkout):
 
-1. `rsync --delete` the skill folder into `skills/<name>/` (flat tree, for
-   `npx skills add`) and `plugins/<name>/skills/<name>/` (Claude Code plugin
-   marketplace tree). Both copies are written in the same commit — this repo
-   is generated, so the duplication cannot drift.
+1. `rsync --delete` the skill folder into `plugins/<name>/skills/<name>/`.
+   One tree serves both consumers: the skills CLI discovers the nested
+   `SKILL.md`, and the Claude Code marketplace installs the plugin around it.
 2. Regenerate `plugins/<name>/.claude-plugin/plugin.json` with the version
    taken from the tag.
 3. Record provenance in `manifest.json` (repo, tag, commit, synced-at).

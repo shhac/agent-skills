@@ -17,7 +17,8 @@ Centralised distribution point for the skills that ship with the `shhac`
 npx skills add shhac/agent-skills
 ```
 
-Then pick the skills for the tools you use. Skills live under `skills/<name>/`.
+Then pick the skills for the tools you use. Skill content lives under
+`plugins/<name>/skills/<name>/`.
 
 ### Option B — Claude Code plugin marketplace
 

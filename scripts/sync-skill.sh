@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-# Sync one skill from a source-repo checkout into this repo's distribution
-# trees. Regenerates: skills/<name>/, plugins/<name>/, manifest.json, and
-# .claude-plugin/marketplace.json. Run from anywhere; operates on the repo
-# this script lives in.
+# Sync one skill from a source-repo checkout into this repo. Regenerates:
+# plugins/<name>/, manifest.json, and .claude-plugin/marketplace.json. Run
+# from anywhere; operates on the repo this script lives in.
 #
 # Required env:
 #   SKILL_NAME  — skill folder name (e.g. agent-notion)
@@ -25,10 +24,9 @@ version="${SRC_TAG#skill-}"
 version="${version#v}"
 synced_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-# Both trees carry the same content: skills/ for flat discovery
-# (npx skills add), plugins/ for the Claude Code marketplace.
-mkdir -p "skills/$SKILL_NAME" "plugins/$SKILL_NAME/skills/$SKILL_NAME" "plugins/$SKILL_NAME/.claude-plugin"
-rsync -a --delete "$SRC_DIR/" "skills/$SKILL_NAME/"
+# One tree serves both consumers: the skills CLI (npx skills add) discovers
+# the nested SKILL.md, and the Claude Code marketplace installs the plugin.
+mkdir -p "plugins/$SKILL_NAME/skills/$SKILL_NAME" "plugins/$SKILL_NAME/.claude-plugin"
 rsync -a --delete "$SRC_DIR/" "plugins/$SKILL_NAME/skills/$SKILL_NAME/"
 
 # First line of the SKILL.md frontmatter description (inline or block style).
@@ -37,7 +35,7 @@ description="$(awk '
   block && /^[^[:space:]]/ { exit }
   block { sub(/^[[:space:]]+/, ""); if ($0 != "") { print; exit } }
   /^description:[[:space:]]*[^|>[:space:]]/ { sub(/^description:[[:space:]]*/, ""); print; exit }
-' "skills/$SKILL_NAME/SKILL.md")"
+' "plugins/$SKILL_NAME/skills/$SKILL_NAME/SKILL.md")"
 if [ "${#description}" -gt 300 ]; then
   description="$(printf '%s' "${description:0:300}" | sed 's/ [^ ]*$//')…"
 fi
