@@ -17,14 +17,16 @@ Centralised distribution point for the skills that ship with the `shhac`
 npx skills add shhac/agent-skills
 ```
 
-Then pick the skills for the tools you use. Skill content lives under
-`plugins/<name>/skills/<name>/`.
+Then pick the skills for the tools you use. Skills live under
+`skills/<name>/`.
 
 ### Option B — Claude Code plugin marketplace
 
+The repo doubles as a single bundle plugin containing all the skills:
+
 ```
 /plugin marketplace add shhac/agent-skills
-/plugin install agent-notion@agent-skills
+/plugin install agent-skills@agent-skills
 ```
 
 Or pre-configure in `.claude/settings.json`:
@@ -35,10 +37,12 @@ Or pre-configure in `.claude/settings.json`:
     { "name": "agent-skills", "github": { "repo": "shhac/agent-skills" } }
   ],
   "enabledPlugins": {
-    "agent-notion@agent-skills": true
+    "agent-skills@agent-skills": true
   }
 }
 ```
+
+For per-skill selection, use Option A — the bundle is all-or-nothing.
 
 ## You still need the binaries
 

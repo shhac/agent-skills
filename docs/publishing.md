@@ -65,14 +65,15 @@ GitHub workflow, never edited in place.
 
 `scripts/sync-skill.sh` (run by the workflow in this repo's checkout):
 
-1. `rsync --delete` the skill folder into `plugins/<name>/skills/<name>/`.
-   One tree serves both consumers: the skills CLI discovers the nested
-   `SKILL.md`, and the Claude Code marketplace installs the plugin around it.
-2. Regenerate `plugins/<name>/.claude-plugin/plugin.json` with the version
-   taken from the tag.
-3. Record provenance in `manifest.json` (repo, tag, commit, synced-at).
-4. Regenerate `.claude-plugin/marketplace.json` from the plugin manifests, so
-   marketplace and plugin versions can never disagree.
-5. Commit with provenance (`sync(<name>): <repo>@<tag> (<sha>)`) and push,
+1. `rsync --delete` the skill folder into `skills/<name>/` — the only
+   content tree. The skills CLI discovers it directly; the Claude Code side
+   installs the repo root as a single bundle plugin (root
+   `.claude-plugin/plugin.json` auto-discovers `skills/`), so nothing is
+   duplicated.
+2. Record provenance in `manifest.json` (repo, tag, commit, synced-at).
+3. Regenerate `.claude-plugin/plugin.json` (bundle version = sync date) and
+   `.claude-plugin/marketplace.json` from it, so marketplace and plugin
+   versions can never disagree.
+4. Commit with provenance (`sync(<name>): <repo>@<tag> (<sha>)`) and push,
    with a rebase-retry loop to absorb races between concurrently releasing
    tools.
