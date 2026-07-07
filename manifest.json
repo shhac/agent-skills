@@ -1,10 +1,10 @@
 {
   "agent-notion": {
     "repo": "shhac/agent-notion",
-    "tag": "v0.7.4",
-    "commit": "01cb77b117d35772c4e369f5c37030ae557ec495",
-    "version": "0.7.4",
-    "synced_at": "2026-07-07T12:40:08Z"
+    "tag": "v0.7.5",
+    "commit": "c0689dee0479eb4138a3eaf62cd5ceb2e03e21ac",
+    "version": "0.7.5",
+    "synced_at": "2026-07-07T15:01:44Z"
   },
   "agent-cloudflare": {
     "repo": "shhac/agent-cloudflare",
