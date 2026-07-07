@@ -1,0 +1,85 @@
+# Reusable workflow: source repos call this on tag push to publish their
+# skill into shhac/agent-skills. Mirrors the homebrew-tap release pattern —
+# the caller holds a deploy key (SKILLS_DEPLOY_KEY) with write access here.
+#
+# Caller snippet (see docs/publishing.md):
+#
+#   on:
+#     push:
+#       tags: ['v*', 'skill-v*']
+#   jobs:
+#     publish-skill:
+#       uses: shhac/agent-skills/.github/workflows/sync-skill.yml@main
+#       with:
+#         skill_name: agent-notion
+#       secrets:
+#         SKILLS_DEPLOY_KEY: ${{ secrets.SKILLS_DEPLOY_KEY }}
+name: Sync skill
+
+on:
+  workflow_call:
+    inputs:
+      skill_name:
+        description: Skill folder name (e.g. agent-notion)
+        required: true
+        type: string
+      skill_path:
+        description: Path to the skill folder in the source repo (default skills/<skill_name>)
+        required: false
+        type: string
+        default: ""
+    secrets:
+      SKILLS_DEPLOY_KEY:
+        description: Deploy key with write access to shhac/agent-skills
+        required: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source repo (the caller, at the pushed tag)
+        uses: actions/checkout@v5
+        with:
+          path: source
+
+      - name: Check out agent-skills
+        uses: actions/checkout@v5
+        with:
+          repository: shhac/agent-skills
+          ssh-key: ${{ secrets.SKILLS_DEPLOY_KEY }}
+          path: agent-skills
+
+      - name: Sync skill into distribution trees
+        env:
+          SKILL_NAME: ${{ inputs.skill_name }}
+          SKILL_PATH: ${{ inputs.skill_path }}
+          SRC_REPO: ${{ github.repository }}
+          SRC_TAG: ${{ github.ref_name }}
+          SRC_COMMIT: ${{ github.sha }}
+        run: |
+          export SRC_DIR="$GITHUB_WORKSPACE/source/${SKILL_PATH:-skills/$SKILL_NAME}"
+          ./agent-skills/scripts/sync-skill.sh
+
+      # Concurrent releases from different tools race on this push; a
+      # rebase-retry loop resolves it (syncs touch disjoint skill trees, and
+      # manifest/marketplace edits merge cleanly on re-run).
+      - name: Commit and push
+        working-directory: agent-skills
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "no changes to publish"
+            exit 0
+          fi
+          short_sha="$(echo '${{ github.sha }}' | cut -c1-7)"
+          git commit -m "sync(${{ inputs.skill_name }}): ${{ github.repository }}@${{ github.ref_name }} ($short_sha)"
+          for attempt in 1 2 3 4 5; do
+            if git push; then
+              exit 0
+            fi
+            git pull --rebase
+          done
+          echo "failed to push after 5 attempts" >&2
+          exit 1
