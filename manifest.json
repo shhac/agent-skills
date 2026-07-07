@@ -2,8 +2,106 @@
   "agent-notion": {
     "repo": "shhac/agent-notion",
     "tag": "v0.7.4",
-    "commit": "2b372ab4a452a71d4db910e7d0761869f5f91fb6",
+    "commit": "01cb77b117d35772c4e369f5c37030ae557ec495",
     "version": "0.7.4",
-    "synced_at": "2026-07-07T12:24:01Z"
+    "synced_at": "2026-07-07T12:40:08Z"
+  },
+  "agent-cloudflare": {
+    "repo": "shhac/agent-cloudflare",
+    "tag": "v0.12.2",
+    "commit": "553670286cb442d5ef21832a5ae1e9ebfe7fd82d",
+    "version": "0.12.2",
+    "synced_at": "2026-07-07T12:40:08Z"
+  },
+  "agent-dd": {
+    "repo": "shhac/agent-dd",
+    "tag": "v0.18.1",
+    "commit": "fe916b2fb38111967b14ed4f3d4fb5398d8cbfc0",
+    "version": "0.18.1",
+    "synced_at": "2026-07-07T12:40:08Z"
+  },
+  "agent-deepweb": {
+    "repo": "shhac/agent-deepweb",
+    "tag": "v0.18.1",
+    "commit": "ac16f7e8782b68fb336ac5dbb0ed0e4d80a506b6",
+    "version": "0.18.1",
+    "synced_at": "2026-07-07T12:40:08Z"
+  },
+  "agent-incident": {
+    "repo": "shhac/agent-incident",
+    "tag": "v0.15.1",
+    "commit": "814976a14db11c0eba95b67fb17dd0d5dbe67d68",
+    "version": "0.15.1",
+    "synced_at": "2026-07-07T12:40:08Z"
+  },
+  "agent-mongo": {
+    "repo": "shhac/agent-mongo",
+    "tag": "v0.9.1",
+    "commit": "73b1b41cc4b4844d8048610509f9d0a165be2c5b",
+    "version": "0.9.1",
+    "synced_at": "2026-07-07T12:40:08Z"
+  },
+  "agent-posthog": {
+    "repo": "shhac/agent-posthog",
+    "tag": "v0.13.1",
+    "commit": "ebf7916581c1bbe407470690f0449e1d6c578556",
+    "version": "0.13.1",
+    "synced_at": "2026-07-07T12:40:09Z"
+  },
+  "agent-postmark": {
+    "repo": "shhac/agent-postmark",
+    "tag": "v0.17.1",
+    "commit": "d926cddac85a546c34c809e71ddda9be3d5212da",
+    "version": "0.17.1",
+    "synced_at": "2026-07-07T12:40:09Z"
+  },
+  "agent-slack": {
+    "repo": "shhac/agent-slack",
+    "tag": "v0.42.1",
+    "commit": "1f956f8da52e60e5ce9f47560bf734033d192ccd",
+    "version": "0.42.1",
+    "synced_at": "2026-07-07T12:40:09Z"
+  },
+  "agent-sql": {
+    "repo": "shhac/agent-sql",
+    "tag": "v1.18.1",
+    "commit": "2ca0a59b95222dc6b5176726e659547443e85ffb",
+    "version": "1.18.1",
+    "synced_at": "2026-07-07T12:40:09Z"
+  },
+  "agent-statsig": {
+    "repo": "shhac/agent-statsig",
+    "tag": "v0.14.1",
+    "commit": "7ae80c89765494fc24ec3cde44591575ea24d255",
+    "version": "0.14.1",
+    "synced_at": "2026-07-07T12:40:09Z"
+  },
+  "agent-stripe": {
+    "repo": "shhac/agent-stripe",
+    "tag": "v0.17.1",
+    "commit": "f5be993e818b1ef12dc14e10db1f10155894a38a",
+    "version": "0.17.1",
+    "synced_at": "2026-07-07T12:40:09Z"
+  },
+  "agent-vercel": {
+    "repo": "shhac/agent-vercel",
+    "tag": "v0.15.1",
+    "commit": "d94f9806bc69c1070d7792fb9b59a7c2ef948c69",
+    "version": "0.15.1",
+    "synced_at": "2026-07-07T12:40:09Z"
+  },
+  "git-hunk": {
+    "repo": "shhac/git-hunk",
+    "tag": "v0.16.0",
+    "commit": "41c317eb2bb7b843198f16d899cdfd53bfc9f3fd",
+    "version": "0.16.0",
+    "synced_at": "2026-07-07T12:40:09Z"
+  },
+  "lin": {
+    "repo": "shhac/lin",
+    "tag": "v0.36.1",
+    "commit": "067d7832a8cc4da3888d9aad8ee7f38467d7f9cc",
+    "version": "0.36.1",
+    "synced_at": "2026-07-07T12:40:10Z"
   }
 }
