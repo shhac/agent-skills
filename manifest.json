@@ -64,10 +64,10 @@
   },
   "agent-sql": {
     "repo": "shhac/agent-sql",
-    "tag": "v1.19.0",
-    "commit": "eba42da541774ddbb37b7e9cf711ca844d07e843",
-    "version": "1.19.0",
-    "synced_at": "2026-07-08T14:23:47Z"
+    "tag": "v1.19.1",
+    "commit": "f7129b9306346188adf271542a10e9091ecb9dd4",
+    "version": "1.19.1",
+    "synced_at": "2026-07-08T14:48:13Z"
   },
   "agent-statsig": {
     "repo": "shhac/agent-statsig",
