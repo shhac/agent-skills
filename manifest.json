@@ -99,10 +99,10 @@
   },
   "lin": {
     "repo": "shhac/lin",
-    "tag": "v0.36.1",
-    "commit": "067d7832a8cc4da3888d9aad8ee7f38467d7f9cc",
-    "version": "0.36.1",
-    "synced_at": "2026-07-07T12:40:10Z"
+    "tag": "v0.36.2",
+    "commit": "c4db5214d2d9b01cb3cc1dd9a224ee2706c47c93",
+    "version": "0.36.2",
+    "synced_at": "2026-07-08T14:28:04Z"
   },
   "agent-mcp-host": {
     "repo": "shhac/agent-mcp-host",
