@@ -5,17 +5,17 @@ Run `agent-mongo <command> usage` for detailed per-command docs.
 
 ## Connection
 
-- `agent-mongo connection add <alias> <uri> [--database <db>] [--credential <name>] [--default]` — save a MongoDB connection
+- `agent-mongo connection add <alias> <uri> [--database <db>] [--credential <name>] [--default]` — save a MongoDB connection; a user:pass embedded in the URI is auto-extracted into a credential named after the alias (mutually exclusive with --credential)
 - `agent-mongo connection update <alias> [--credential <name>] [--clear-credential] [--database <db>]` — update saved connection
 - `agent-mongo connection remove <alias>` — remove a saved connection
-- `agent-mongo connection list` — one record per saved connection (alias, connection_string, credential, default)
+- `agent-mongo connection list` — one record per saved connection (alias, connection_string with password redacted, credential, default)
 - `agent-mongo connection test [alias] [-c <alias>]` — ping MongoDB to verify connectivity
 - `agent-mongo connection set-default <alias>` — set default connection
 
 ## Credential
 
-- `agent-mongo credential add <name> --username <user> --password <pass>` — store named credential (overwrites if exists)
-- `agent-mongo credential add <name> [--username <user>] --form` — prompt for missing fields via native OS dialog (agent never sees the secret)
+- `agent-mongo credential add <name> [--username <user>] --form` — store named credential, prompting for missing fields via native OS dialog (recommended: the agent never sees the secret; overwrites if exists)
+- `agent-mongo credential add <name> --username <user> --password <pass>` — fully non-interactive variant; prefer `--form` (flag values land in shell history and agent context)
 - `agent-mongo credential remove <name> [--force]` — remove credential (--force: remove even if referenced)
 - `agent-mongo credential list` — list credentials (passwords redacted) with storage source and referencing connections
 
