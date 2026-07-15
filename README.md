@@ -86,7 +86,7 @@ versions and provenance.
 | agent-cloudflare | Read-first Cloudflare operations triage for AI agents | [shhac/agent-cloudflare](https://github.com/shhac/agent-cloudflare) |
 | agent-code-review | PR review queue + scheduler CLI | [shhac/agent-code-review](https://github.com/shhac/agent-code-review) |
 | agent-dd | Triage and investigate Datadog monitors, logs, metrics, traces, incidents, and SLOs | [shhac/agent-dd](https://github.com/shhac/agent-dd) |
-| agent-deepweb | Drives the `agent-deepweb` CLI for credential-gated HTTP requests where profiles are referenced… | [shhac/agent-deepweb](https://github.com/shhac/agent-deepweb) |
+| agent-deepweb | Credential-gated HTTP requests for AI agents via named profiles | [shhac/agent-deepweb](https://github.com/shhac/agent-deepweb) |
 | agent-incident | Triage and manage incident.io incidents, alerts, schedules, escalations, and status pages | [shhac/agent-incident](https://github.com/shhac/agent-incident) |
 | agent-mcp-host | One-origin MCP host for the agent-* CLI family | [shhac/agent-mcp-host](https://github.com/shhac/agent-mcp-host) |
 | agent-mongo | Read-only MongoDB CLI for AI agents | [shhac/agent-mongo](https://github.com/shhac/agent-mongo) |
