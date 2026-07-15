@@ -96,7 +96,7 @@ versions and provenance.
 | agent-slack | Slack CLI for AI agents | [shhac/agent-slack](https://github.com/shhac/agent-slack) |
 | agent-sql | Read-only-by-default SQL CLI for AI agents | [shhac/agent-sql](https://github.com/shhac/agent-sql) |
 | agent-statsig | Manage Statsig feature gates, dynamic configs, experiments, segments, and tags | [shhac/agent-statsig](https://github.com/shhac/agent-statsig) |
-| agent-stripe | Triage and investigate Stripe incidents, payments, invoices, subscriptions, disputes, refunds,… | [shhac/agent-stripe](https://github.com/shhac/agent-stripe) |
+| agent-stripe | Triage and investigate Stripe payments, invoices, and subscriptions | [shhac/agent-stripe](https://github.com/shhac/agent-stripe) |
 | agent-vercel | Vercel CLI for AI agents | [shhac/agent-vercel](https://github.com/shhac/agent-vercel) |
 | git-hunk | Non-interactive hunk staging for git | [shhac/git-hunk](https://github.com/shhac/git-hunk) |
 | lin | Linear CLI for humans and LLMs | [shhac/lin](https://github.com/shhac/lin) |
