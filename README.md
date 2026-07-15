@@ -83,7 +83,7 @@ versions and provenance.
 
 | Skill | What it does | Source |
 |---|---|---|
-| agent-cloudflare | Investigate Cloudflare accounts, zones, DNS, SSL/TLS, rulesets, cache, Workers, KV, R2, Waiting… | [shhac/agent-cloudflare](https://github.com/shhac/agent-cloudflare) |
+| agent-cloudflare | Read-first Cloudflare operations triage for AI agents | [shhac/agent-cloudflare](https://github.com/shhac/agent-cloudflare) |
 | agent-code-review | PR review queue + scheduler CLI | [shhac/agent-code-review](https://github.com/shhac/agent-code-review) |
 | agent-dd | Triage and investigate Datadog monitors, logs, metrics, traces, incidents, and SLOs | [shhac/agent-dd](https://github.com/shhac/agent-dd) |
 | agent-deepweb | Drives the `agent-deepweb` CLI for credential-gated HTTP requests where profiles are referenced… | [shhac/agent-deepweb](https://github.com/shhac/agent-deepweb) |
