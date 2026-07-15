@@ -91,7 +91,7 @@ versions and provenance.
 | agent-mcp-host | One-origin MCP host for the agent-* CLI family | [shhac/agent-mcp-host](https://github.com/shhac/agent-mcp-host) |
 | agent-mongo | Read-only MongoDB CLI for AI agents | [shhac/agent-mongo](https://github.com/shhac/agent-mongo) |
 | agent-notion | Notion CLI for humans and LLMs | [shhac/agent-notion](https://github.com/shhac/agent-notion) |
-| agent-posthog | Investigate PostHog product analytics, HogQL, persons, events, event/property schema, feature f… | [shhac/agent-posthog](https://github.com/shhac/agent-posthog) |
+| agent-posthog | Investigate PostHog product analytics and write HogQL | [shhac/agent-posthog](https://github.com/shhac/agent-posthog) |
 | agent-postmark | Triage Postmark email delivery, bounces, and suppressions | [shhac/agent-postmark](https://github.com/shhac/agent-postmark) |
 | agent-slack | Slack CLI for AI agents | [shhac/agent-slack](https://github.com/shhac/agent-slack) |
 | agent-sql | Read-only-by-default SQL CLI for AI agents | [shhac/agent-sql](https://github.com/shhac/agent-sql) |
