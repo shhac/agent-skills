@@ -74,4 +74,13 @@ jq -n \
     } ]
   }' > .claude-plugin/marketplace.json
 
+# Regenerate the README skills table from manifest.json + each SKILL.md so the
+# published list can never drift from what the repo actually ships. Skipped
+# (non-fatally) if python3 is unavailable in the runner.
+if command -v python3 >/dev/null 2>&1; then
+  python3 scripts/gen-readme.py
+else
+  echo "warning: python3 not found — README skills table not regenerated" >&2
+fi
+
 echo "synced $SKILL_NAME $version from $SRC_REPO@$SRC_TAG (${SRC_COMMIT:0:7})"

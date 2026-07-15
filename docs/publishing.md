@@ -74,6 +74,10 @@ GitHub workflow, never edited in place.
 3. Regenerate `.claude-plugin/plugin.json` (bundle version = sync date) and
    `.claude-plugin/marketplace.json` from it, so marketplace and plugin
    versions can never disagree.
-4. Commit with provenance (`sync(<name>): <repo>@<tag> (<sha>)`) and push,
+4. Regenerate the README "Available skills" table (`scripts/gen-readme.py`)
+   from `manifest.json` + each `SKILL.md`, between the `skills-table`
+   markers — so the published list never drifts from what the repo ships.
+   Don't hand-edit that table; edit the source `SKILL.md` instead.
+5. Commit with provenance (`sync(<name>): <repo>@<tag> (<sha>)`) and push,
    with a rebase-retry loop to absorb races between concurrently releasing
    tools.
