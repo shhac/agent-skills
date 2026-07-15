@@ -83,21 +83,21 @@ versions and provenance.
 
 | Skill | What it does | Source |
 |---|---|---|
-| agent-cloudflare | Investigate Cloudflare accounts, zones, DNS, SSL/TLS, rulesets, cache, Workers, KV, R2,… | [shhac/agent-cloudflare](https://github.com/shhac/agent-cloudflare) |
+| agent-cloudflare | Investigate Cloudflare accounts, zones, DNS, SSL/TLS, rulesets, cache, Workers, KV, R2, Waiting… | [shhac/agent-cloudflare](https://github.com/shhac/agent-cloudflare) |
 | agent-code-review | PR review queue + scheduler CLI | [shhac/agent-code-review](https://github.com/shhac/agent-code-review) |
 | agent-dd | Triage and investigate Datadog monitors, logs, metrics, traces, incidents, and SLOs | [shhac/agent-dd](https://github.com/shhac/agent-dd) |
-| agent-deepweb | Drives the `agent-deepweb` CLI for credential-gated HTTP requests where profiles are ref… | [shhac/agent-deepweb](https://github.com/shhac/agent-deepweb) |
-| agent-incident | Triage and manage incident.io incidents, alerts, schedules, escalations, and status page… | [shhac/agent-incident](https://github.com/shhac/agent-incident) |
-| agent-mcp-host | One-origin MCP host for the agent-* CLI family: run several family CLIs' MCP servers beh… | [shhac/agent-mcp-host](https://github.com/shhac/agent-mcp-host) |
+| agent-deepweb | Drives the `agent-deepweb` CLI for credential-gated HTTP requests where profiles are referenced… | [shhac/agent-deepweb](https://github.com/shhac/agent-deepweb) |
+| agent-incident | Triage and manage incident.io incidents, alerts, schedules, escalations, and status pages | [shhac/agent-incident](https://github.com/shhac/agent-incident) |
+| agent-mcp-host | One-origin MCP host for the agent-* CLI family | [shhac/agent-mcp-host](https://github.com/shhac/agent-mcp-host) |
 | agent-mongo | Read-only MongoDB CLI for AI agents | [shhac/agent-mongo](https://github.com/shhac/agent-mongo) |
 | agent-notion | Notion CLI for humans and LLMs | [shhac/agent-notion](https://github.com/shhac/agent-notion) |
-| agent-posthog | Investigate PostHog product analytics, HogQL, persons, events, event/property schema, fe… | [shhac/agent-posthog](https://github.com/shhac/agent-posthog) |
-| agent-postmark | Triage and investigate Postmark delivery, bounces, outbound and inbound messages, suppre… | [shhac/agent-postmark](https://github.com/shhac/agent-postmark) |
-| agent-slack | Slack CLI for AI agents: read permalinks/threads/history/unreads/later/ canvases/workflo… | [shhac/agent-slack](https://github.com/shhac/agent-slack) |
+| agent-posthog | Investigate PostHog product analytics, HogQL, persons, events, event/property schema, feature f… | [shhac/agent-posthog](https://github.com/shhac/agent-posthog) |
+| agent-postmark | Triage and investigate Postmark delivery, bounces, outbound and inbound messages, suppressions,… | [shhac/agent-postmark](https://github.com/shhac/agent-postmark) |
+| agent-slack | Slack CLI for AI agents | [shhac/agent-slack](https://github.com/shhac/agent-slack) |
 | agent-sql | Read-only-by-default SQL CLI for AI agents | [shhac/agent-sql](https://github.com/shhac/agent-sql) |
 | agent-statsig | Manage Statsig feature gates, dynamic configs, experiments, segments, and tags | [shhac/agent-statsig](https://github.com/shhac/agent-statsig) |
-| agent-stripe | Triage and investigate Stripe incidents, payments, invoices, subscriptions, disputes, re… | [shhac/agent-stripe](https://github.com/shhac/agent-stripe) |
-| agent-vercel | Vercel CLI for AI agents: triage deployments and builds across projects, read build and… | [shhac/agent-vercel](https://github.com/shhac/agent-vercel) |
+| agent-stripe | Triage and investigate Stripe incidents, payments, invoices, subscriptions, disputes, refunds,… | [shhac/agent-stripe](https://github.com/shhac/agent-stripe) |
+| agent-vercel | Vercel CLI for AI agents | [shhac/agent-vercel](https://github.com/shhac/agent-vercel) |
 | git-hunk | Non-interactive hunk staging for git | [shhac/git-hunk](https://github.com/shhac/git-hunk) |
 | lin | Linear CLI for humans and LLMs | [shhac/lin](https://github.com/shhac/lin) |
 
