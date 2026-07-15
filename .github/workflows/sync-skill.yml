@@ -49,7 +49,13 @@ jobs:
           ssh-key: ${{ secrets.SKILLS_DEPLOY_KEY }}
           path: agent-skills
 
-      - name: Sync skill into distribution trees
+      # Sync + commit + push in one retry loop. Derived files (manifest, the
+      # README table, plugin.json, marketplace.json) are regenerated from
+      # scratch, so a concurrent release's changes to them can't be rebase-
+      # merged. Instead, on each attempt reset to the latest main and re-apply
+      # the sync on top — the script is idempotent, so this always converges.
+      - name: Sync, commit, and push
+        working-directory: agent-skills
         env:
           SKILL_NAME: ${{ inputs.skill_name }}
           SKILL_PATH: ${{ inputs.skill_path }}
@@ -58,28 +64,23 @@ jobs:
           SRC_COMMIT: ${{ github.sha }}
         run: |
           export SRC_DIR="$GITHUB_WORKSPACE/source/${SKILL_PATH:-skills/$SKILL_NAME}"
-          ./agent-skills/scripts/sync-skill.sh
-
-      # Concurrent releases from different tools race on this push; a
-      # rebase-retry loop resolves it (syncs touch disjoint skill trees, and
-      # manifest/marketplace edits merge cleanly on re-run).
-      - name: Commit and push
-        working-directory: agent-skills
-        run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -A
-          if git diff --cached --quiet; then
-            echo "no changes to publish"
-            exit 0
-          fi
-          short_sha="$(echo '${{ github.sha }}' | cut -c1-7)"
-          git commit -m "sync(${{ inputs.skill_name }}): ${{ github.repository }}@${{ github.ref_name }} ($short_sha)"
+          short_sha="$(echo "$SRC_COMMIT" | cut -c1-7)"
           for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git reset --hard origin/main
+            ./scripts/sync-skill.sh
+            git add -A
+            if git diff --cached --quiet; then
+              echo "no changes to publish"
+              exit 0
+            fi
+            git commit -m "sync($SKILL_NAME): $SRC_REPO@$SRC_TAG ($short_sha)"
             if git push; then
               exit 0
             fi
-            git pull --rebase
+            echo "push raced with another release; re-syncing onto new main (attempt $attempt)"
           done
           echo "failed to push after 5 attempts" >&2
           exit 1
