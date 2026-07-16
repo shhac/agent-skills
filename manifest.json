@@ -113,9 +113,9 @@
   },
   "agent-code-review": {
     "repo": "shhac/agent-code-review",
-    "tag": "skill-v0.17.0",
-    "commit": "8c3d9a09a74000f3a529a9c4a1f4fc571b5616b1",
-    "version": "0.17.0",
-    "synced_at": "2026-07-15T12:01:34Z"
+    "tag": "v0.18.0",
+    "commit": "7a0ae9345f5cd5aa7719ae0f05a7fbcdeebaeb68",
+    "version": "0.18.0",
+    "synced_at": "2026-07-16T12:46:42Z"
   }
 }
