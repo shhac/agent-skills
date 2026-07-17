@@ -113,9 +113,9 @@
   },
   "agent-code-review": {
     "repo": "shhac/agent-code-review",
-    "tag": "v0.20.0",
-    "commit": "a5d32837592059ad35d8107800245696e2e558cf",
-    "version": "0.20.0",
-    "synced_at": "2026-07-17T10:49:46Z"
+    "tag": "v0.21.0",
+    "commit": "cb6d81d78e4f709b41f1fb9f66e8431398a971c6",
+    "version": "0.21.0",
+    "synced_at": "2026-07-17T13:22:33Z"
   }
 }
