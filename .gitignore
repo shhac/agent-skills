@@ -1,0 +1,3 @@
+# Python bytecode cache (scripts/gen-readme.py runs during sync)
+__pycache__/
+*.pyc
