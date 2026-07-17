@@ -71,10 +71,10 @@
   },
   "agent-statsig": {
     "repo": "shhac/agent-statsig",
-    "tag": "v0.14.1",
-    "commit": "7ae80c89765494fc24ec3cde44591575ea24d255",
-    "version": "0.14.1",
-    "synced_at": "2026-07-07T12:40:09Z"
+    "tag": "v0.15.0",
+    "commit": "e75a055cdee800cd8a9ad871284d90aad7c97b18",
+    "version": "0.15.0",
+    "synced_at": "2026-07-17T15:51:14Z"
   },
   "agent-stripe": {
     "repo": "shhac/agent-stripe",
