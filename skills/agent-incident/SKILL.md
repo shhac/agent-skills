@@ -123,13 +123,23 @@ agent-incident oncall escalation path list
 
 ## Auth Setup
 
-If credentials aren't configured yet:
+If credentials aren't configured yet, set up an org **without ever putting the key on the command line**.
+
+**Preferred (interactive) — `--form`:** pops a native OS dialog so the key is typed directly into the OS, never seen by the agent (nor placed on argv, in shell history, or in the agent transcript):
 ```bash
-agent-incident auth add <alias> --api-key <key>
+agent-incident auth add prod --form
 agent-incident auth check
 ```
+
+**Non-interactive — pipe the key on stdin:** for CI, scripts, or headless hosts where no dialog can appear. The key is read from stdin, so it stays off argv:
+```bash
+printf '%s' "$KEY" | agent-incident auth add prod
+```
+
+If a user pastes an API key into chat, **do not** put it in `--api-key <key>` — that value lands on argv, in shell history, and in this transcript. Have the user run `--form` in their own terminal, or pipe the key on stdin as above.
+
 Keys are managed at `https://app.incident.io/~/settings/api-keys`.
 
 Environment variable also works: `INCIDENT_API_KEY=<key>`.
 
-Multiple orgs: `agent-incident auth add prod --api-key <key>`, then `--org prod` on any command.
+Multiple orgs: repeat the setup per alias (`printf '%s' "$KEY" | agent-incident auth add staging`), then pass `--org staging` on any command.
