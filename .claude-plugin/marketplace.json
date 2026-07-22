@@ -1,7 +1,7 @@
 {
   "name": "agent-skills",
   "description": "Skills for the shhac agent-* CLI family, synced from each tool's repo on release. See manifest.json for per-skill provenance.",
-  "version": "2026.7.20",
+  "version": "2026.7.22",
   "owner": {
     "name": "Paul Somers",
     "url": "https://github.com/shhac"
@@ -10,7 +10,7 @@
     {
       "name": "agent-skills",
       "source": "./",
-      "version": "2026.7.20",
+      "version": "2026.7.22",
       "description": "Skills for the shhac agent-* CLI family, synced from each tool's repo on release. See manifest.json for per-skill provenance.",
       "author": {
         "name": "Paul Somers",

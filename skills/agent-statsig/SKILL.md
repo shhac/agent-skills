@@ -39,6 +39,10 @@ applied — create missing tags with `tag create` first.
 3. Make the change with the appropriate command
 4. Verify by reading again
 
+Config-level writes (`config update`, `schema set/clear`, `value set`, `rule add`)
+accept `--dry-run` to have the API validate the change without persisting it —
+useful before risky edits.
+
 ### Error handling
 
 All errors are JSON to stderr with a classification:
@@ -61,11 +65,17 @@ agent-statsig gate enable <name>
 agent-statsig gate disable <name>
 agent-statsig gate rollout <name> --percent 50
 agent-statsig gate rule add <name> --name "Rule" --criteria email --value user@co.com
-agent-statsig gate rule update <name> --rule <id> --add-value new@co.com
-agent-statsig gate rule remove <name> --rule <id>
+agent-statsig gate rule update <name> --rule <id-or-name> --add-value new@co.com
+agent-statsig gate rule remove <name> --rule <id-or-name>
+agent-statsig gate rule move <name> --rule <id-or-name> --position <n|top|bottom>   # also on config rule
+# --rule matches by ID first, then unique rule name; ambiguous names error with
+# the candidate IDs. Add --by-id to disable name matching.
 
 # Modify configs (return values validated against schema)
 agent-statsig config rule add <name> --name "Rule" --criteria email --value user@co.com --return-value '{"key":"val"}'
+agent-statsig config schema get <name>
+agent-statsig config schema set <name> '{"type":"object","required":["key"]}'
+agent-statsig config value set <name> '{"key":"val"}'   # defaultValue (no-rule fallback)
 
 # Experiment lifecycle
 agent-statsig experiment start <name>
@@ -135,8 +145,14 @@ commands. Useful for diagnosing auth or routing issues.
 Default operator is `any` (case-insensitive match). Run `gate criteria` for the full list.
 
 ### Dynamic Config Schemas
-When a config has a JSON Schema, `--return-value` is validated before the API call.
-This catches type errors, missing required fields, and unknown fields locally.
+When a config has a JSON Schema, `--return-value` and `defaultValue` updates are
+validated before the API call. This catches type errors, missing required fields,
+and unknown fields locally.
+
+Set or remove the schema with `config schema set|clear <name>` (pass a plain JSON
+object; the CLI handles the API's string encoding). Setting a schema is blocked if
+existing values don't conform — fix the values first or pass `--force`. Full policy
+and examples: `agent-statsig config usage`.
 
 ### Environments
 Rules can be scoped to environments (staging, production, etc.) using `--env`.
