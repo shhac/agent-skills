@@ -54,7 +54,7 @@ One record per hit:
 { "id": "a1b2c3d4-...", "type": "page", "title": "Meeting Notes", "url": "https://www.notion.so/...", "parent": { "type": "database", "id": "b2c3d4e5-..." }, "last_edited_at": "2026-01-15T10:30:00.000Z" }
 ```
 
-`type`: `page` | `database`. `parent.type`: `database` | `page` | `workspace`; `parent.id` is present only for `database`/`page` parents.
+`type`: `page` | `database`. `parent.type`: `database` | `page` | `workspace`; `parent.id` is present only for `database`/`page` parents. A `database` `parent.id` is accepted directly by `database get`/`query`/`schema`, even when it differs from the id used to open the database view.
 
 ## Database list items (`database list`)
 
@@ -109,6 +109,8 @@ Compact LLM-friendly format:
 ```
 
 ## Database query results (`database query`)
+
+Rows come back in the database view's own order (often manual), **not** newest-first — with no `--sort`, a recently-added row can sort last, so `--limit` drops it and it looks missing. Pass `--sort '[{"timestamp":"last_edited_time","direction":"descending"}]'` for "the latest N", and use the `@pagination` trailer to distinguish truncation from the end of the rows.
 
 One record per row (properties flattened — see "Flattened property types"):
 

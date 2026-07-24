@@ -95,6 +95,10 @@ agent-notion database query <id> --sort '[{"property":"Name","direction":"ascend
 
 Use `database schema` to discover property names, types, and valid select/status options before building filters.
 
+**Result order:** with no `--sort`, rows come back in the view's own order (often manual), **not** newest-first — a freshly-added row can sort last, so `--limit` silently drops it and it looks like the row is missing. For "the latest N", always `--sort` on a timestamp: `--sort '[{"timestamp":"last_edited_time","direction":"descending"}]'`. Check the `{"@pagination": {has_more, next_cursor}}` trailer to tell truncation from "no more rows".
+
+A page's `parent.id` (its database id) is accepted by `database get`/`query`/`schema` even when it differs from the id used to open the database view — you can take a row's parent and query its database directly.
+
 ## Pages
 
 ```bash
