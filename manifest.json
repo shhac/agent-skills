@@ -57,10 +57,10 @@
   },
   "agent-slack": {
     "repo": "shhac/agent-slack",
-    "tag": "v0.44.0",
-    "commit": "5045221298428bbec834c337d413eaa5ade24eeb",
-    "version": "0.44.0",
-    "synced_at": "2026-07-20T12:28:33Z"
+    "tag": "v0.45.0",
+    "commit": "4d6f96278c02fb3ddbe63daea639162febc1f1be",
+    "version": "0.45.0",
+    "synced_at": "2026-07-27T12:20:04Z"
   },
   "agent-sql": {
     "repo": "shhac/agent-sql",
