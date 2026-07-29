@@ -23,8 +23,8 @@ search endpoints, so every investigation starts from an id you already have.
 
 - **Never accept pasted dLocal credentials in chat.** A dLocal credential set is three secrets
   (X-Login, X-Trans-Key, Secret key). Ask the user to run
-  `agent-dlocal auth add <profile> --form` locally, which collects all of them in one native OS
-  dialog so they never enter the transcript.
+  `agent-dlocal auth add <profile> --form` locally, which collects them through native OS dialogs
+  (one per secret, each titled with the value it wants) so they never enter the transcript.
 - Use `agent-dlocal auth update <profile> --form` when a secret needs rotating.
 - Never ask the tool to reveal a stored credential. There is no command that does this.
 - Every command is read-only. dLocal refunds and payouts move real money in markets where reversal
@@ -68,11 +68,14 @@ agent-dlocal orders get <order_id>...            # merchant order -> payment
 agent-dlocal refunds get <refund_id>...
 agent-dlocal chargebacks get <chargeback_id>...
 agent-dlocal payouts get <payout_id>...
-agent-dlocal payment-methods list --country BR
+agent-dlocal payment-methods list [COUNTRY...]      # one record per country
+agent-dlocal payment-methods countries --supported  # which markets work at all
 agent-dlocal api get <path> [--query k=v] [--payouts]
 ```
 
-`get` takes multiple ids and returns one record per id in input order.
+`get` takes multiple ids and returns one record per id in input order; `payment-methods` takes
+countries the same way. `--country XX` is global — use it to switch market on any command that takes
+one, rather than looking for a per-command spelling.
 
 ## Reading a dLocal outcome
 
@@ -110,8 +113,18 @@ Payouts use a **different** table — code 500 means `DELIVERED` for a payout an
 - **Live and sandbox are separate ledgers.** An id from one never resolves against the other, and a
   404 is often really an environment mix-up. dLocal keys carry no `test`/`live` marker, so check the
   profile: `agent-dlocal auth list`.
-- **A 401 is often clock skew, not a bad secret.** `X-Date` is inside the signed message, so a
-  drifted system clock produces a well-formed signature that dLocal rejects.
+- **Read the dLocal `code`, not the HTTP status.** They disagree: a bad signature is
+  `400 {"code":5000}` on payins, and `403 {"code":"authentication_failed"}` on payouts. Note payouts
+  codes are *strings* while payins codes are *numbers*. `403 {"code":3001} Invalid credentials` is returned *before* the
+  signature is checked, so it means the caller was rejected outright — most often the machine's IP
+  is not on the dashboard's IP Whitelist for that product and environment, or the profile points at
+  the wrong host.
+- **Clock skew is NOT a failure mode**, despite the timestamp being part of the signature. `X-Date`
+  is signed *and* sent, so a drifted clock stays self-consistent and validates fine.
+- **There is no list-countries endpoint.** If the user asks which markets they can operate in, run
+  `payment-methods countries --supported` — it probes each market. dLocal does **not** support
+  Singapore, South Korea, Taiwan, Hong Kong, Venezuela, or western Europe; an unsupported code
+  returns `400 {"code":5003}`.
 - **`order_id` is the merchant's id, not dLocal's.** If the user gives you their own reference, use
   `orders get`, not `payments get`.
 

@@ -2,8 +2,12 @@
 
 ## Formats
 
-NDJSON (`jsonl`) by default — one record per line, so a batch streams and greps cleanly.
-`--format json` and `--format yaml` produce a single document.
+NDJSON (`jsonl`) by default — one record per line, so a batch streams and greps cleanly. That
+applies to **single records too**, not just lists: `investigate`, `auth`, `config` and `usage` all
+emit one compact line by default.
+
+`--format json` and `--format yaml` produce a pretty document: the bare object for a single record,
+a `{"data":[…]}` envelope for a list.
 
 ## Multi-get
 
@@ -57,6 +61,6 @@ Stored credentials are never exposable by any flag.
 ## Debug
 
 `--debug` writes `@debug` lines to stderr with the request URL, status, signer scheme, and response
-body. The `Authorization`, `Payload-Signature`, `X-Login`, and `X-Trans-Key` header values are
-masked unconditionally — the signature is derived from the secret key, so echoing it would hand out
-an oracle.
+body — **request headers are never logged**, so the signature and the credential headers cannot
+reach a transcript at all. The response body goes through the same redaction policy as normal
+output.
