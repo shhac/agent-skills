@@ -1,16 +1,17 @@
 ---
 name: agent-dd
-description: Triage and investigate Datadog monitors, logs, metrics, traces, incidents, and SLOs. Use when the user asks about alerts, log errors, metric spikes, trace latency, incident management, SLO burn rate, error budgets, or on-call triage in Datadog.
+description: Triage and investigate Datadog monitors, logs, metrics, traces, incidents, and SLOs, and create or adjust monitors to cover what you find. Use when the user asks about alerts, log errors, metric spikes, trace latency, incident management, SLO burn rate, error budgets, or on-call triage in Datadog — or asks to create, edit, retune, or delete a Datadog monitor, change alert thresholds, or add alerting for something that just broke.
 allowed-tools: Bash(agent-dd *) Read Grep Glob
 ---
 
 # agent-dd — Datadog Triage CLI
 
-Investigate Datadog monitors, logs, metrics, traces, incidents, and SLOs. Triage and debugging workflows only — not full Datadog administration.
+Investigate Datadog monitors, logs, metrics, traces, incidents, and SLOs, and act on what you find by creating or adjusting monitors. Triage, debugging and the hardening that follows — not full Datadog administration (no dashboards, users, roles, pipelines, or synthetics).
 
 ## When to Use
 
 - Checking monitor/alert status, muting/unmuting monitors
+- Creating a monitor to catch a problem you just diagnosed, or adjusting one that misfired
 - Searching logs for errors, spikes, or anomalies
 - Querying metrics or investigating metric spikes
 - Searching traces for latency or errors
@@ -26,6 +27,24 @@ Investigate Datadog monitors, logs, metrics, traces, incidents, and SLOs. Triage
 3. **Find the hotspot**: `logs facets` to see which services/hosts/statuses dominate
 4. **Gather context**: Pull logs, metrics, and traces for the affected service
 5. **Correlate**: Do log errors align with metric spikes? Do traces show latency?
+
+### Harden after diagnosis
+
+Once you know what broke, the next questions are "how do we stop it happening
+again" and "how do we get visibility on it". Both mean writing a monitor.
+
+1. **Check what already exists** — `monitors search --query "<service>"`. Often
+   the right answer is fixing a monitor that misfired, not adding a new one.
+2. **Dry-run first** — `--dry-run` sends the definition to Datadog's validate
+   endpoint. The query is parsed by the same engine that would run it, so a
+   malformed one fails here rather than being created broken.
+3. **Then write it** — `monitors create`, or `monitors update <id>` to adjust an
+   existing monitor's thresholds.
+4. **Report the diff** — `update` returns a before/after of exactly what moved.
+   Hand that to the human: it is the evidence that nothing else changed.
+
+Prefer `update` on an existing monitor over creating a near-duplicate. Two
+monitors covering the same signal is how alert fatigue starts.
 
 ### Always read before acting
 
@@ -64,6 +83,20 @@ agent-dd monitors unmute <id>
 agent-dd incidents create --title "Elevated error rate" --severity SEV-3
 agent-dd incidents update <id> --state stable
 
+# Harden (write) — always --dry-run first
+agent-dd monitors create --type "metric alert" \
+  --query 'avg(last_5m):avg:system.cpu.user{service:web} > 90' \
+  --name "CPU high on web" --message "@slack-oncall" \
+  --tag "service:web" --priority 2 \
+  --threshold-critical 90 --threshold-warning 80 --dry-run
+agent-dd monitors update <id> --threshold-critical 95   # merges; siblings survive
+agent-dd monitors update <id> --renotify-interval 30 --dry-run
+agent-dd monitors delete <id> --yes [--force]
+
+# Options this CLI has no flag for: pass the whole definition
+agent-dd monitors create --body @monitor.json
+echo '{"type":"log alert","query":"...","name":"..."}' | agent-dd monitors create --body @-
+
 # Discovery
 agent-dd metrics list --search "system.cpu"
 agent-dd traces services [--env production] [--search checkout]
@@ -75,6 +108,13 @@ agent-dd slo history <id> --from now-7d --to now
 Log queries: `service:web status:error @http.status_code:>500 "timeout"`
 Metric queries: `avg:system.cpu.user{host:web-1} by {service}`
 Trace queries: same as log syntax, with `@duration:>1000000000` (nanoseconds)
+Monitor queries: `avg(last_5m):avg:system.cpu.user{service:web} > 90`
+
+**A monitor query is not a metric query.** It adds an evaluation window
+(`avg(last_5m):`) and a threshold comparison (`> 90`), and the grammar differs
+per `--type` — `log alert` and `service check` look nothing like the above.
+Read [references/query-syntax.md](references/query-syntax.md#monitor-queries)
+before writing one, and `--dry-run` it.
 
 For full operator reference (wildcards, booleans, numeric comparisons, facets): see [references/query-syntax.md](references/query-syntax.md)
 
@@ -82,7 +122,8 @@ For full operator reference (wildcards, booleans, numeric comparisons, facets): 
 
 - **Time formats**: relative (`now-15m`, `now-1h`, `now-7d`), RFC3339, or unix epoch. Defaults: `--from now-1h`, `--to now`
 - **Output**: NDJSON by default for all commands (list, search, and single-item get). `--full` for complete API response. `--format json|yaml|jsonl` to override. `get <id>...` accepts 1..N ids — see Get contract below.
-- **Monitor statuses**: `ok`, `alert`, `warn`, `no_data`, `unknown`
+- **Monitor statuses**: Datadog returns `OK`, `Alert`, `Warn`, `No Data`, `Ignored`, `Skipped`, `Unknown`. `--status` is case-insensitive and treats spaces and underscores alike, so `alert`, `Alert`, `no_data` and `No Data` all work — but the value in output is Datadog's spelling
+- **The state key is always `status`** on a monitor object, in every command. At the top level of `create`/`update`/`delete`/`mute` output, `status` instead reports the command's outcome (`"updated"`, `"deleted"`) — nesting tells them apart
 - **Incident severities**: `SEV-1` (critical) through `SEV-5` (informational)
 - **Incident statuses**: `active`, `stable`, `resolved`
 
