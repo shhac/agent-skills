@@ -35,10 +35,12 @@ Run `agent-mongo <command> usage` for detailed per-command docs.
 
 - `agent-mongo collection list <database> [-c <alias>]` — list collections (one record per collection: name, type)
 - `agent-mongo collection schema <database> <collection> [--sample-size <n>] [--depth <n>] [--limit <n>] [--skip <n>] [-c <alias>]` — infer schema from samples (default: 100, configurable via defaults.schemaSampleSize). One record per field; sampleSize/totalDocuments/totalFields on the `@meta` line. Errors if collection does not exist. Use --depth to limit nesting, --limit/--skip for field pagination.
-- `agent-mongo collection indexes <database> <collection> [-c <alias>]` — list indexes with key patterns
+- `agent-mongo collection indexes <database> <collection> [-c <alias>]` — list indexes with key patterns. Specs are verbatim: compound key order is the real index order (not sorted), null clauses in `partialFilterExpression` are kept, nothing is truncated
 - `agent-mongo collection stats <database> <collection> [-c <alias>]` — collection statistics (document count, sizes, capped)
 
 ## Query
+
+All `query` commands accept `--echo-query`, which adds an `{"@query": ...}` line reporting the query as sent to the server — verbatim, so field order and null clauses are intact. Off by default.
 
 - `agent-mongo query find <database> <collection> [--filter <json>] [--sort <json>] [--projection <json>] [--limit <n>] [--skip <n>] [-c <alias>]` — find documents (default sort: `{_id:-1}`, default limit: 20). One record per document; `@pagination` line carries has_more and total_items.
 - `agent-mongo query get <database> <collection> <id> [--type objectid|string|number] [--projection <json>] [-c <alias>]` — get document by \_id (auto-detects ObjectId). Returns { database, collection, fieldCount, document }.
