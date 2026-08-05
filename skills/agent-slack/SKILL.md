@@ -148,6 +148,50 @@ formatted message** — full table of links, mentions, escaping, and the
 `--slack-markdown` dialect.
 Scheduling, forwarding, and the draft hand-off flow: `agent-slack message usage`.
 
+## Waiting for a reply
+
+```bash
+ts=$(agent-slack message send "#team" "deploy blocked — proceed or hold?" | jq -r .ts)
+agent-slack message await "#team" --since "$ts" --events message,reaction --timeout 30m
+```
+
+**That is the pattern for asking a human something.** A person answers in one
+of three ways — a message in the channel, a reply threaded on your message, or
+just an emoji reaction on it — and you cannot predict which. The call above
+catches all three. Verified live: the human threaded her first answer and
+reacted with a custom `:letsdothis:` emoji.
+
+Two things make it correct rather than lucky:
+
+- **`--since` is what stops you missing the answer.** Pass the `ts` your send
+  returned. It is exclusive, and it makes the command check what already
+  arrived before it started listening — otherwise a fast reply lands in the gap
+  between sending and waiting and is never seen. Replies threaded on that
+  message count too, not just channel-level ones.
+- **`--events message,reaction`** — reactions are opt-in. Leave the reaction
+  *name* unfiltered and judge it yourself: ✅ ✔️ ☑️ 👍 🎉, a workspace's custom
+  `:approved:`, or a plain "yes" all mean approval. If you do narrow with
+  `--reaction`, read `skipped` — it carries the ❌ that would otherwise look
+  like silence, and "rejected" must never be read as "no answer yet".
+
+A timeout is **not an error**: exit 0, `{"received": false}`, and a `cursor` to
+pass as the next `--since`, so looping loses nothing.
+
+```bash
+agent-slack message stream --channel "#alerts" --duration 30m --idle-timeout 10m
+```
+
+**That is the pattern for watching a channel** — deploys, alerts, an incident
+room. NDJSON, one event per line, `@summary` with per-channel cursors at the
+end. Always bounded, so it returns.
+
+App posts count as messages and carry `author.bot_id` with **no**
+`author.user_id` — most alert traffic is apps, so never key on `user_id` alone.
+Both commands drop the socket's bookkeeping noise (typing, read marks, badges)
+and never re-emit a thread's parent when a reply arrives. Neither polls or
+spends rate-limit budget. `stream` needs browser auth; `await` falls back to
+polling on a bot token. Full flags: [references/commands/message.md](references/commands/message.md).
+
 ## Finding people & channels
 
 ```bash
