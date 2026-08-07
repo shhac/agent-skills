@@ -29,10 +29,10 @@
   },
   "agent-incident": {
     "repo": "shhac/agent-incident",
-    "tag": "v0.16.0",
-    "commit": "d28517905ce133a9c39b20c809e0a703f0ec50b0",
-    "version": "0.16.0",
-    "synced_at": "2026-07-17T15:50:53Z"
+    "tag": "v0.16.1",
+    "commit": "29f6b51266cbf002395f450348ac07520bf8ba7e",
+    "version": "0.16.1",
+    "synced_at": "2026-08-07T13:55:53Z"
   },
   "agent-mongo": {
     "repo": "shhac/agent-mongo",
