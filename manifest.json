@@ -15,10 +15,10 @@
   },
   "agent-dd": {
     "repo": "shhac/agent-dd",
-    "tag": "v0.20.0",
-    "commit": "c47ef2b1f8ff70b42dedaab29b82116216965ff3",
-    "version": "0.20.0",
-    "synced_at": "2026-07-31T16:50:33Z"
+    "tag": "v0.20.1",
+    "commit": "79b04b43b154966cba4b7d0eb316b99b6191639e",
+    "version": "0.20.1",
+    "synced_at": "2026-08-07T13:33:59Z"
   },
   "agent-deepweb": {
     "repo": "shhac/agent-deepweb",
