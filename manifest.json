@@ -127,9 +127,9 @@
   },
   "agent-fathom": {
     "repo": "shhac/agent-fathom",
-    "tag": "v0.1.1",
-    "commit": "f11159c469cd0957e585e97e15bcd7fdef66f8c9",
-    "version": "0.1.1",
-    "synced_at": "2026-08-07T14:06:31Z"
+    "tag": "v0.2.0",
+    "commit": "c763ca079badef65cb5d4a7b32ec974f1b3f2f4e",
+    "version": "0.2.0",
+    "synced_at": "2026-08-07T15:56:08Z"
   }
 }
