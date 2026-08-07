@@ -8,10 +8,10 @@
   },
   "agent-cloudflare": {
     "repo": "shhac/agent-cloudflare",
-    "tag": "skill-v0.12.2",
-    "commit": "d1415ec805306ea480f6f2946cc81815908eb73f",
-    "version": "0.12.2",
-    "synced_at": "2026-07-15T15:05:33Z"
+    "tag": "v0.12.3",
+    "commit": "c3a10a14935394554853dfb1e79eb360d24f6c25",
+    "version": "0.12.3",
+    "synced_at": "2026-08-07T13:55:56Z"
   },
   "agent-dd": {
     "repo": "shhac/agent-dd",
