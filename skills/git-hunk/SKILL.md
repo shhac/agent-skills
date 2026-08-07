@@ -39,6 +39,37 @@ Do not run multiple staging commands in parallel. Git index writes contend on
 `.git/index.lock`; collect the intended hashes and pass them to one
 `git hunk add <hash>...` command.
 
+### Whole files plus specific hunks: use two commands
+
+`--file` **scopes which hunks a hash is allowed to match**, it does not add to
+them. So this does not mean "these hashes plus everything in these files" — it
+means "these hashes, but only if they live in these files", and any hash
+elsewhere fails to resolve:
+
+```bash
+git hunk add a3f7c21 --file src/parser.zig   # a3f7c21 must be IN parser.zig
+```
+
+Run the two selections as separate commands instead. Hashes stay stable across
+the first call, so the second still resolves:
+
+```bash
+git hunk add --file src/parser.zig --file README.md   # whole files
+git hunk add a3f7c21 b82e0f4:1-73                     # specific hunks
+```
+
+`--file` is also how you disambiguate a hash prefix that matches hunks in more
+than one file — that is the same scoping behaviour, used deliberately.
+
+### After splitting: verify with something that compiles tests
+
+Splitting an implementation from its tests is an easy mis-slice, and many
+toolchains do not compile test files during an ordinary build — so a commit
+holding only the tests can build clean and still be broken. After a split,
+verify with a step that typechecks tests too: `go vet ./...` (Go's build skips
+`_test.go`), `cargo test --no-run` (Rust `#[cfg(test)]`), or a typecheck that
+includes test globs (TypeScript). "It builds" is not sufficient.
+
 ## NEVER use `git add <file>` — use `git hunk add` instead
 
 `git add <file>` stages the entire file, which can include unreviewed changes.
@@ -85,10 +116,50 @@ The hash is computed from: file path, stable line number (worktree side for unst
 HEAD side for staged), and diff content (`+`/`-` lines only). Staged and unstaged
 hashes for the same hunk differ -- use `add`'s `->` output to track the mapping.
 
+## Line specs (`sha:3-5,8`)
+
+`add`, `reset`, `commit`, and `restore` accept `<sha>:<lines>` to operate on part
+of a hunk.
+
+**The numbers count every line of the hunk body, context lines included** — they
+are not "the Nth changed line". Line 1 is frequently a context line and selects
+nothing:
+
+```
+@@ -1,3 +1,6 @@
+ keep-A      <- 1  (context)
++ADD-1       <- 2
++ADD-2       <- 3
+ keep-B      <- 4  (context)
++ADD-3       <- 5
+ keep-C      <- 6  (context)
+```
+
+- `:1,3` stages **only `ADD-2`** (line 1 is context, so it contributes nothing)
+- `:2,5` stages **`ADD-1` and `ADD-3`**
+
+Do not count these by hand — `git hunk diff -n <sha>` prints the numbers:
+
+```bash
+git hunk diff -n a3f7c21      # numbered gutter, no selection
+git hunk diff a3f7c21:2,5     # same gutter, selected lines marked with >
+```
+
+A spec that selects only context lines is an error (`no changes in selected lines
+of hunk <sha>`, exit 1). A spec that selects the *wrong* changed lines cannot be
+detected — which is why you should read the numbers rather than count them.
+
+`-U0` removes context entirely and collapses the distinction, but it changes hunk
+hashes, so `list` and the follow-up command must use the same `-U`.
+
 ## New, deleted, and untracked files
 
 Untracked files appear automatically in `list` output alongside tracked changes.
 Use `--tracked-only` or `--untracked-only` to filter.
+
+Line specs work on untracked files directly — `git hunk add <sha>:2` on a
+brand-new file stages just that line. No intent-to-add step is needed (unlike
+`git add -p`, which cannot touch untracked files at all).
 
 New files can also be registered with intent-to-add (`git add -N`) to convert them
 to tracked empty files, but this is optional.
