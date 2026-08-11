@@ -20,13 +20,20 @@ Use this table to choose the smallest investigation that matches the user's ques
 | `entitlement` | `--subscription/--customer/--metadata/--invoice/--checkout-session` | Internal product entitlement mismatch across billing surfaces. | [entitlement](investigation/entitlement.md) |
 | `collection-risk` | `--days N [--limit N]` | Which upcoming subscription customers need payment-method outreach. | [collection-risk](investigation/collection-risk.md) |
 | `subscription-cancel-risk` | `--days N [--limit N]` | Subscriptions ending trial, canceling, or stopping billing soon. | [subscription-cancel-risk](investigation/subscription-cancel-risk.md) |
+| `duplicate-charge` | `--customer cus_... [--last4 4242] [--window-hours 24] [--limit N]` | "We think this customer was charged twice." | [duplicate-charge](investigation/duplicate-charge.md) |
+| `statement-descriptor` | `--descriptor "TEXT" [--customer cus_...] [--limit N]` | "What is this line on my bank statement?" | [statement-descriptor](investigation/statement-descriptor.md) |
+| `action-required` | `[--customer cus_...] [--limit N]` | Payment is stalled on the customer (SCA/3DS), not failed. | [action-required](investigation/action-required.md) |
+| `refund-settlement` | `<re_...\|ch_...>` | "We refunded them and nothing has arrived." | [refund-settlement](investigation/refund-settlement.md) |
+| `invoice-total` | `<in_...>` | "This invoice total isn't what we expected." | [invoice-total](investigation/invoice-total.md) |
 | `incoming-payment` | `<pi_...|ch_...|in_...>` | Customer payment to you failed or needs explanation. | [incoming-payment](investigation/incoming-payment.md) |
 | `checkout-session` | `<cs_...>` | Checkout completion, line items, resulting PI/subscription/invoice. | [checkout-session](investigation/checkout-session.md) |
 | `payment-method-readiness` | `<cus_...|pm_...>` | Saved payment method missing, detached, expiring, or unclear. | [payment-method-readiness](investigation/payment-method-readiness.md) |
 | `setup` | `<seti_...|pm_...|cus_...>` | Saving a payment method or mandate/setup flow failed or needs confirmation. | [setup](investigation/setup.md) |
 | `timeline` | `<cus_...> [--limit N]` | Need chronological "what happened to this customer?" context. | [timeline](investigation/timeline.md) |
 | `outgoing-payment` | `<tr_...|po_...|acct_...>` | Money from platform to connected business went wrong. | [outgoing-payment](investigation/outgoing-payment.md) |
-| `account-health` | `<acct_...>` | Connected account capability/requirements blocker. | [account-health](investigation/account-health.md) |
+| `account-health` | `<acct_...> [--namespace auto\|v1\|v2]` | Connected account capability/requirements blocker, in Connect v1 or Accounts v2. | [account-health](investigation/account-health.md) |
+| `connect-readiness` | `[--limit N] [--namespace auto\|v1\|v2]` | Which connected accounts need attention, platform-wide. | [connect-readiness](investigation/connect-readiness.md) |
+| `account-events` | `<acct_...> [--limit N] [--type <event-type>]` | What recently changed on an Accounts v2 account (capabilities, requirements, identity). | [account-events](investigation/account-events.md) |
 | `ledger` | `<ch_...|pi_...|re_...|tr_...|po_...|txn_...|fee_...>` | Reconcile amount, fee, net, payout/transfer/refund ledger evidence. | [ledger](investigation/ledger.md) |
 | `refund` | `<re_...|ch_...|pi_...>` | Customer-visible refund state. | [refund](investigation/refund.md) |
 | `refund-recovery` | `<re_...|ch_...|pi_...|trr_...> [--transfer tr_...]` | Refund funding, reverse transfer, connected account recovery. | [refund-recovery](investigation/refund-recovery.md) |
