@@ -70,8 +70,8 @@ brew install shhac/tap/<tool>     # e.g. brew install shhac/tap/agent-notion
 
 Each skill's `manifest.json` entry records exactly which tool version it
 documents (`repo`, `tag`, `commit`, `synced_at`). If a skill seems to
-disagree with your installed CLI, compare against `<tool> --version` and
-`brew upgrade`.
+disagree with your installed CLI, compare against the command documented by
+that skill (normally `<tool> --version`) and `brew upgrade`.
 
 ## Available skills
 
