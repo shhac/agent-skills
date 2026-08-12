@@ -131,5 +131,12 @@
     "commit": "c763ca079badef65cb5d4a7b32ec974f1b3f2f4e",
     "version": "0.2.0",
     "synced_at": "2026-08-07T15:56:08Z"
+  },
+  "gt2gh": {
+    "repo": "shhac/gt2gh",
+    "tag": "v0.1.0",
+    "commit": "9164ebc8d32ae65d20009a58942034fb5c3b2491",
+    "version": "0.1.0",
+    "synced_at": "2026-08-12T11:51:45Z"
   }
 }
