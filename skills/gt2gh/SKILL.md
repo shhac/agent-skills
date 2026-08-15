@@ -58,7 +58,8 @@ description: |
   value must itself be declared and ancestral.
 - Read `design-docs/graphite-cli-contract.md` before changing discovery. Do not
   read Graphite internal metadata/configuration or use `gt --debug`: supported
-  production discovery is strict, version-pinned noninteractive CLI parsing.
+  production discovery is strict, compatibility-gated noninteractive CLI
+  parsing.
 
 ## Develop and test
 
@@ -91,12 +92,22 @@ description: |
   `g2g submit --spec <dir>/submission.json`, then add `--apply`. Keep the spec
   on failure and state exact repair/validation/retry commands. Multiple PR
   templates require `--template <name>` or `--no-template`; never guess.
+- Prefer `--json` (or `--porcelain`) over parsing the human preview. Both are
+  renderers over the same validated view, they suppress colour and every
+  human-facing line, and `schemaVersion` signals breaking changes. Never scrape
+  the pretty graph.
+- A blocked preview names the repairing command: merged pull requests point at
+  `gt sync` (Graphite owns restacking; no gt2gh command helps), missing or
+  closed ones at `g2g submit`, a wrong base at `g2g sync`. Two open pull
+  requests for one branch is deliberately unadvised — a person must choose.
 - `status` is the read-only triage entry point. It renders one selected
   Graphite path and reports each selected PR's native GitHub stack membership
   from the same batched PR query; keep the healthy case to one compact summary
   line and annotate only missing/conflicting nodes. `unlink` is the deliberate
-  inverse of `link`: it requires an explicit GitHub `--stack-number`, previews
-  first, and only `--apply` invokes `gh stack unstack`. It must never alter
+  inverse of `link`: it discovers the GitHub stack number from the selected
+  path and refuses rather than guesses when that path is unlinked or spans
+  several stacks, accepts `--stack-number` to override, previews first, and
+  only `--apply` invokes `gh stack unstack`. It must never alter
   Graphite, branches, PR content, reviewers, or PR lifecycle.
 
 - After command discovery, use the resolved command's `--help` or `link --help`
