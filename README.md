@@ -101,7 +101,7 @@ versions and provenance.
 | agent-stripe | Triage and investigate Stripe payments, invoices, and subscriptions | [shhac/agent-stripe](https://github.com/shhac/agent-stripe) |
 | agent-vercel | Vercel CLI for AI agents | [shhac/agent-vercel](https://github.com/shhac/agent-vercel) |
 | git-hunk | Non-interactive hunk staging for git | [shhac/git-hunk](https://github.com/shhac/git-hunk) |
-| gt2gh | Develop, test, or safely use the gt2gh Go CLI that bridges Graphite-managed branch stacks to Gi… | [shhac/gt2gh](https://github.com/shhac/gt2gh) |
+| gt2gh | Develop, test, or safely use the gt2gh Go CLI, which records stacked branches itself and projec… | [shhac/gt2gh](https://github.com/shhac/gt2gh) |
 | lin | Linear CLI for humans and LLMs | [shhac/lin](https://github.com/shhac/lin) |
 
 <!-- END skills-table -->
