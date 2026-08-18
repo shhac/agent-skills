@@ -134,9 +134,9 @@
   },
   "g2g": {
     "repo": "shhac/g2g",
-    "tag": "v0.15.2",
-    "commit": "2af9b9aba2e8f81e5266812fca4b9ae94bf506ca",
-    "version": "0.15.2",
-    "synced_at": "2026-08-18T13:23:08Z"
+    "tag": "v0.16.0",
+    "commit": "17f3b9a191f5fce4ff6ca231394a8520864328a1",
+    "version": "0.16.0",
+    "synced_at": "2026-08-18T13:45:07Z"
   }
 }
