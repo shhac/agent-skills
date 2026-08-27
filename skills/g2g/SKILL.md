@@ -60,6 +60,24 @@ description: |
 - How much of the structure a command means is `--scope`, and it means the same
   thing whichever record answered. Read `design-docs/stack-scope.md` before
   changing it. `--from` pins which source answers for one invocation.
+- A command named inside a hint is marked at the point the sentence is written
+  (`runnable("g2g link")`) and drawn when the sentence is styled. Do not add a
+  highlighter that finds commands by pattern: what is drawn as runnable must be
+  exactly what can be copied and run. Marks are control characters, never
+  content, so keep them out of anything that becomes an `error` — stderr is
+  undecorated and would print them verbatim — and strip them for `--json` and
+  `--porcelain`. `Presentation.style` re-opens the enclosing style after each
+  command, because ANSI ends a style by returning to the default and a subdued
+  hint would otherwise come back bright from its first command onwards. The
+  chip's padding column is painted, never written into the sentence, so plain
+  output is unchanged.
+- A package that refuses says why and what to do as a `repair.Note`, and
+  derives its `Blocked` sentence from it. `internal/cli` renders the sentence
+  for a machine and lays the same values out for a person — reason on its own
+  line, one way out per line, each command drawn as a command. Do not hand-write
+  a refusal sentence beside the structure: the pair drifts, and the sentence is
+  the half a machine reads. A refusal delegated from another package carries no
+  structure here, so `refusing` takes the sentence too and still says why.
 - Linking has two halves and they must stay apart: `Presentation.hyperlink` is
   the capability (may this output carry a link), and `internal/cli/links.go` is
   the policy (what does a thing point at, and which service wins). A render site
@@ -235,6 +253,10 @@ description: |
   `g2g submit --spec <dir>/submission.json`, then add `--apply`. Keep the spec
   on failure and state exact repair/validation/retry commands. Multiple PR
   templates require `--template <name>` or `--no-template`; never guess.
+- A refusal reaches a machine as `blocked` (the reason, no label) and `repair`
+  (the ways out, each with its command separate from the prose). Read `repair`
+  rather than parsing the sentence, and treat a way with no `command` as a real
+  answer that is not a thing to run.
 - Prefer `--json` (or `--porcelain`) over parsing the human preview. Both are
   renderers over the same validated view, they suppress colour and every
   human-facing line, and `schemaVersion` signals breaking changes. Never scrape
@@ -244,6 +266,24 @@ description: |
   missing or closed ones at `g2g submit`, and a wrong base at `g2g retarget`.
   Two open pull requests for one branch is deliberately unadvised — a person
   must choose.
+- A branch's annotation is a list of `stackMark` — one axis each, one severity
+  each: `base✓`/`base✗`, `head✗`, `pr✗`, and a subject-less mark for what is
+  about no axis. Build them and call `stackNode.marked`, which renders `State`
+  and the worst `Severity` from them; never set `State` alongside marks, and do
+  not fold two axes into one mark, which is the failure this replaced. A merged
+  pull request is `pr✓` and neutral, never grouped with a missing or closed
+  one: it succeeded, and only the leftover branch is a problem.
+- Currency is counted by content (`Cherry`, never `Divergence`) and bounded to a
+  branch's own commits — above its parent, not above the trunk. Counting commit
+  ids reported every commit the trunk had gained as unpushed work of the
+  reader's own. A branch replayed since it was pushed is `Currency.Rewritten`:
+  nothing missing, needs pushing, and not a divergence.
+- "Landed" is a content question Git answers and GitHub cannot, and it needs
+  both halves: `Cherry` per commit, then `Absorbed` for the squash merge. A
+  landed branch is `link.IssueLanded`, never `IssueMissing` — the advice for
+  missing is `g2g submit`, and submitting work already in the trunk is the bug
+  this prevents. What forgets it depends on the source (`g2g prune` for g2g's
+  graph, `gt sync` for Graphite), so do not hardcode one.
 - `status` is the read-only triage entry point. It renders one selected
   path from the resolved g2g or Graphite structure and reports each selected
   PR's native GitHub stack membership from the same batched PR query; keep the
