@@ -1,9 +1,11 @@
 ---
 name: lin
 description: |
-  Linear CLI for humans and LLMs. Use when looking up, searching, creating, or updating Linear issues, projects, initiatives, documents, cycles, teams, labels, comments, customers, customer requests, files, or external links. Triggers: "linear", "linear issue", "linear project", "linear initiative", "linear document", "linear ticket", "linear search", "linear team", "linear cycle", "linear comment", "linear label", "linear file", "linear customer", "customer request", "customer need", "customer feedback", "attach github pr", "link pr to issue", "link slack message".
-when_to_use: |
-  Use when the user asks to inspect or change Linear issues, projects, initiatives, documents, cycles, teams, labels, comments, customers, customer requests, file attachments, or links to GitHub PRs/issues, GitLab MRs, Slack, or Discord messages.
+  Linear CLI for humans and LLMs. Use when looking up, searching, creating,
+  or updating Linear issues, projects, initiatives, documents, cycles,
+  teams, labels, and comments, working with customers, customer requests,
+  and feedback, attaching files, or linking GitHub PRs and issues, GitLab
+  MRs, Slack, or Discord messages to Linear items.
 allowed-tools: Bash(lin *) Read Grep Glob
 ---
 

@@ -99,10 +99,10 @@
   },
   "lin": {
     "repo": "shhac/lin",
-    "tag": "v0.36.3",
-    "commit": "e423f65f4b3d23504d7b7a6b8fb814059b4aba81",
-    "version": "0.36.3",
-    "synced_at": "2026-08-07T13:33:57Z"
+    "tag": "skill-v0.36.4",
+    "commit": "f99c322cd799a21ce8b6af0ad0fffff95ee04e31",
+    "version": "0.36.4",
+    "synced_at": "2026-08-31T18:12:00Z"
   },
   "agent-mcp-host": {
     "repo": "shhac/agent-mcp-host",
