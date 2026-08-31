@@ -1,11 +1,11 @@
 ---
 name: lin
 description: |
-  Linear CLI for humans and LLMs. Use when looking up, searching, creating,
-  or updating Linear issues, projects, initiatives, documents, cycles,
-  teams, labels, and comments, working with customers, customer requests,
-  and feedback, attaching files, or linking GitHub PRs and issues, GitLab
-  MRs, Slack, or Discord messages to Linear items.
+  Look up, search, create, and update Linear issues, projects, initiatives,
+  documents, and cycles. Use when working with teams, labels, and comments,
+  with customers, customer requests, and feedback, attaching files, or
+  linking GitHub PRs and issues, GitLab MRs, Slack, or Discord messages to
+  Linear items.
 allowed-tools: Bash(lin *) Read Grep Glob
 ---
 
