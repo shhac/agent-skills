@@ -1,16 +1,14 @@
 ---
 name: agent-fathom
 description: |
-  Search and read Fathom meeting recordings: transcripts, AI summaries, action items, highlights, attendees, CRM matches, meeting types, teams, and users. Also manages and verifies Fathom webhooks. Use when:
-  - Finding what was said or agreed in a meeting, or what a customer asked for
-  - Pulling a transcript, summary, action items, or highlights for a recording
-  - Finding meetings by date, company domain, recorder, team, or meeting type
-  - Downloading a meeting's video or audio file
-  - Listing Fathom teams, team members, or users and their permissions
-  - Finding meetings by title, attendee, company, date, recorder, team, or meeting type
-  - Listing or filtering action items and commitments from meetings
-  - Creating, deleting, or signature-verifying a Fathom webhook
-  Triggers: "fathom", "action items", "what did we commit to", "outstanding actions", "meeting notes", "meeting transcript", "call transcript", "meeting recording", "AI notetaker", "call summary", "action items from the call", "what did we agree", "what did the customer say", "recording_id", "fathom.video", "meeting highlights", "call recording"
+  Search and read Fathom meeting recordings: transcripts, AI summaries,
+  action items, highlights, attendees, CRM matches, meeting types, teams,
+  and users. Also manages and signature-verifies Fathom webhooks. Use when
+  finding what was said, agreed, or committed to in a meeting, pulling a
+  transcript, summary, or highlights, locating meetings by date, title,
+  attendee, company domain, recorder, team, or meeting type, downloading a
+  meeting's video or audio, or listing teams, members, and permissions.
+  Triggers: recording_id, fathom.video, AI notetaker.
 allowed-tools: Bash(agent-fathom *) Bash(mockfathom *) Read Grep Glob
 ---
 

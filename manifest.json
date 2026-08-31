@@ -127,10 +127,10 @@
   },
   "agent-fathom": {
     "repo": "shhac/agent-fathom",
-    "tag": "v0.2.1",
-    "commit": "7471420c9681bb35f2e29ea55145e311e657483c",
-    "version": "0.2.1",
-    "synced_at": "2026-08-12T12:56:04Z"
+    "tag": "skill-v0.2.2",
+    "commit": "f5cbf2e2c5417d4d89776c90b9851b75adaff7f1",
+    "version": "0.2.2",
+    "synced_at": "2026-08-31T18:11:41Z"
   },
   "g2g": {
     "repo": "shhac/g2g",
