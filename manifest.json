@@ -43,10 +43,10 @@
   },
   "agent-posthog": {
     "repo": "shhac/agent-posthog",
-    "tag": "v0.13.2",
-    "commit": "1462e97a268c5942a5674541b2bf0dc75e4170bc",
-    "version": "0.13.2",
-    "synced_at": "2026-08-07T13:55:37Z"
+    "tag": "skill-v0.13.3",
+    "commit": "453f0736b502a99718b47a2947a3ced8e5d13112",
+    "version": "0.13.3",
+    "synced_at": "2026-08-31T18:11:49Z"
   },
   "agent-postmark": {
     "repo": "shhac/agent-postmark",
