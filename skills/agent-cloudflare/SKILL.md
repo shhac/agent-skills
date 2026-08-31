@@ -1,12 +1,12 @@
 ---
 name: agent-cloudflare
 description: |
-  Read-first Cloudflare operations triage for AI agents. Covers accounts, zones, DNS, SSL/TLS, rulesets, cache, Workers, KV, R2, Waiting Rooms, audit logs, analytics, snapshots, and guarded mutations, all via a secret-safe CLI. Use when:
-  - Checking Cloudflare zone configuration or DNS records
-  - Investigating Cloudflare traffic, cache, WAF/rulesets, SSL/TLS, Waiting Room, Worker, KV, R2, or audit-log context
-  - Looking up account/zone IDs for Cloudflare resources
-  - Making authenticated Cloudflare reads or dry-run mutation previews without exposing API tokens
-  Triggers: "cloudflare", "cf zone", "dns record", "waf", "ruleset", "cache purge", "waiting room", "worker", "workers kv", "r2 bucket", "cloudflare api"
+  Read-first Cloudflare operations triage via a secret-safe CLI: accounts,
+  zones, DNS, SSL/TLS, rulesets and WAF, cache, Workers, KV, R2, Waiting
+  Rooms, audit logs, analytics, and snapshots. Use when checking zone or DNS
+  configuration, investigating traffic, cache, firewall, or certificate
+  behaviour, looking up account and zone IDs, or making authenticated reads
+  and dry-run mutation previews without exposing API tokens.
 allowed-tools: Bash(agent-cloudflare *) Bash(mockcloudflare *) Read Grep Glob
 ---
 
