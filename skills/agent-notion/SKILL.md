@@ -1,9 +1,11 @@
 ---
 name: agent-notion
 description: |
-  Notion CLI for humans and LLMs. Use when searching, reading, exporting, creating, updating, archiving, or commenting on Notion pages, databases, blocks, workspace content, backlinks, history, recent activity, auth, or Notion AI chats/models. Triggers: "notion", "notion page", "notion database", "notion search", "query notion", "notion block", "notion comment", "notion auth", "notion export", "notion backlinks", "notion history", "notion activity", "notion ai", "notion chat", "ai model".
-when_to_use: |
-  Use when the user asks to search Notion, query database rows, read page properties/content, mutate pages or blocks, add/list comments, export pages/workspaces, inspect backlinks/version history/activity, manage Notion auth, or chat with Notion AI.
+  Notion CLI for humans and LLMs. Use when searching Notion, querying
+  database rows, reading page properties and content, creating, updating, or
+  archiving pages and blocks, adding or listing comments, exporting pages or
+  a whole workspace, inspecting backlinks, version history, or recent
+  activity, managing Notion auth, or chatting with Notion AI.
 allowed-tools: Bash(agent-notion *) Read Grep Glob
 ---
 
