@@ -120,10 +120,10 @@
   },
   "agent-dlocal": {
     "repo": "shhac/agent-dlocal",
-    "tag": "v0.2.1",
-    "commit": "b6782557f256c75a2ebfeb30a44ebec657b666fb",
-    "version": "0.2.1",
-    "synced_at": "2026-08-07T14:11:46Z"
+    "tag": "skill-v0.2.2",
+    "commit": "8ef281a7efdcbe3355654a3f9a95a2c1eab7aab3",
+    "version": "0.2.2",
+    "synced_at": "2026-08-31T18:11:35Z"
   },
   "agent-fathom": {
     "repo": "shhac/agent-fathom",
