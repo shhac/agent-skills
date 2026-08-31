@@ -78,10 +78,10 @@
   },
   "agent-stripe": {
     "repo": "shhac/agent-stripe",
-    "tag": "v0.18.0",
-    "commit": "06c2f077c6507fa4df0f05f1514a142430853258",
-    "version": "0.18.0",
-    "synced_at": "2026-08-11T17:01:01Z"
+    "tag": "skill-v0.18.1",
+    "commit": "0fdeffbe2c7faed36f9ef913088d8d3fabe2660c",
+    "version": "0.18.1",
+    "synced_at": "2026-08-31T18:14:43Z"
   },
   "agent-vercel": {
     "repo": "shhac/agent-vercel",

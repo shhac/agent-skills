@@ -98,7 +98,7 @@ versions and provenance.
 | agent-slack | Slack CLI for AI agents | [shhac/agent-slack](https://github.com/shhac/agent-slack) |
 | agent-sql | Read-only-by-default SQL CLI supporting PostgreSQL, CockroachDB, MySQL, MariaDB, SQLite, DuckDB… | [shhac/agent-sql](https://github.com/shhac/agent-sql) |
 | agent-statsig | Manage Statsig feature gates, dynamic configs, experiments, segments, and tags | [shhac/agent-statsig](https://github.com/shhac/agent-statsig) |
-| agent-stripe | Triage and investigate Stripe payments, invoices, and subscriptions | [shhac/agent-stripe](https://github.com/shhac/agent-stripe) |
+| agent-stripe | Triage and investigate Stripe payments, invoices, subscriptions, disputes, refunds, balances, c… | [shhac/agent-stripe](https://github.com/shhac/agent-stripe) |
 | agent-vercel | Vercel CLI for AI agents | [shhac/agent-vercel](https://github.com/shhac/agent-vercel) |
 | g2g | Develop, test, or safely use the g2g Go CLI, which records stacked branches itself and projects… | [shhac/g2g](https://github.com/shhac/g2g) |
 | git-hunk | Non-interactive hunk staging for git | [shhac/git-hunk](https://github.com/shhac/git-hunk) |
