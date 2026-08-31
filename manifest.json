@@ -141,9 +141,9 @@
   },
   "agent-motion": {
     "repo": "shhac/agent-motion",
-    "tag": "v0.1.0",
-    "commit": "5f0a0cd6ba4fdea295fb4147ff8a111736bf2efd",
-    "version": "0.1.0",
-    "synced_at": "2026-08-31T18:20:13Z"
+    "tag": "skill-v0.1.1",
+    "commit": "f3307a779922e6dcbc9c5bf28568836fd9359a18",
+    "version": "0.1.1",
+    "synced_at": "2026-08-31T21:46:07Z"
   }
 }
