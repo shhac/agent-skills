@@ -96,7 +96,7 @@ versions and provenance.
 | agent-posthog | Investigate PostHog product analytics and write HogQL | [shhac/agent-posthog](https://github.com/shhac/agent-posthog) |
 | agent-postmark | Triage Postmark email delivery, bounces, and suppressions across outbound and inbound messages,… | [shhac/agent-postmark](https://github.com/shhac/agent-postmark) |
 | agent-slack | Slack CLI for AI agents | [shhac/agent-slack](https://github.com/shhac/agent-slack) |
-| agent-sql | Read-only-by-default SQL CLI for AI agents | [shhac/agent-sql](https://github.com/shhac/agent-sql) |
+| agent-sql | Read-only-by-default SQL CLI supporting PostgreSQL, CockroachDB, MySQL, MariaDB, SQLite, DuckDB… | [shhac/agent-sql](https://github.com/shhac/agent-sql) |
 | agent-statsig | Manage Statsig feature gates, dynamic configs, experiments, segments, and tags | [shhac/agent-statsig](https://github.com/shhac/agent-statsig) |
 | agent-stripe | Triage and investigate Stripe payments, invoices, and subscriptions | [shhac/agent-stripe](https://github.com/shhac/agent-stripe) |
 | agent-vercel | Vercel CLI for AI agents | [shhac/agent-vercel](https://github.com/shhac/agent-vercel) |
