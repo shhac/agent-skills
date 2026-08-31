@@ -1,0 +1,19 @@
+# Guards the skills this repo ships. The same check runs in sync-skill.yml at
+# publish time, against the source repo; this one catches anything already in
+# the tree — a skill synced before the check existed, or a hand-edit here.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check-descriptions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check every shipped skill's description length
+        run: python3 scripts/check-skill.py skills/*/
