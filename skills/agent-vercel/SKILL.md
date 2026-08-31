@@ -1,15 +1,14 @@
 ---
 name: agent-vercel
 description: |
-  Vercel CLI for AI agents: triage deployments and builds across projects,
-  read build and runtime logs, see what is live in production including
-  rolling releases, diff environment variables across environments, inspect
-  domains, DNS, certs, and the Firewall (WAF), purge CDN cache by tag, break
-  down spend and usage, manage aliases, and call the raw REST API. Read by
-  default; state-changing actions are gated behind --yes. Use when asked why
-  a deployment failed, which deploy is live, to compare env vars, fix a
-  misconfigured domain or cert, promote or roll back a deployment, or see
-  what drives Vercel spend.
+  Triage Vercel deployments, builds, logs, domains, and spend: what is live
+  in production including rolling releases, build and runtime logs, env var
+  diffs across environments, domains, DNS, certs, and the Firewall (WAF),
+  CDN cache purge by tag, usage breakdowns, aliases, and raw REST API calls.
+  Read by default; state-changing actions are gated behind --yes. Use when
+  asked why a deployment failed, which deploy is live, to compare env vars,
+  fix a misconfigured domain or cert, promote or roll back a deployment, or
+  see what drives Vercel spend.
 allowed-tools: Bash(agent-vercel *) Read
 ---
 
