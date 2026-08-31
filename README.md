@@ -91,7 +91,7 @@ versions and provenance.
 | agent-fathom | Search and read Fathom meeting recordings | [shhac/agent-fathom](https://github.com/shhac/agent-fathom) |
 | agent-incident | Triage and manage incident.io incidents, alerts, schedules, escalations, and status pages | [shhac/agent-incident](https://github.com/shhac/agent-incident) |
 | agent-mcp-host | One-origin MCP host for the agent-* CLI family | [shhac/agent-mcp-host](https://github.com/shhac/agent-mcp-host) |
-| agent-mongo | Read-only MongoDB CLI for AI agents | [shhac/agent-mongo](https://github.com/shhac/agent-mongo) |
+| agent-mongo | Read-only MongoDB CLI | [shhac/agent-mongo](https://github.com/shhac/agent-mongo) |
 | agent-notion | Notion CLI for humans and LLMs | [shhac/agent-notion](https://github.com/shhac/agent-notion) |
 | agent-posthog | Investigate PostHog product analytics and write HogQL | [shhac/agent-posthog](https://github.com/shhac/agent-posthog) |
 | agent-postmark | Triage Postmark email delivery, bounces, and suppressions across outbound and inbound messages,… | [shhac/agent-postmark](https://github.com/shhac/agent-postmark) |
