@@ -113,10 +113,10 @@
   },
   "agent-code-review": {
     "repo": "shhac/agent-code-review",
-    "tag": "v0.31.1",
-    "commit": "3b757c1431dda3a6e5b71c8ff6ff8a70230bc668",
-    "version": "0.31.1",
-    "synced_at": "2026-08-27T16:56:49Z"
+    "tag": "skill-v0.31.2",
+    "commit": "50de4d5b228f159be86069d7ec376b8a933f7754",
+    "version": "0.31.2",
+    "synced_at": "2026-08-31T18:11:55Z"
   },
   "agent-dlocal": {
     "repo": "shhac/agent-dlocal",
