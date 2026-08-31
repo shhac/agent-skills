@@ -92,10 +92,10 @@
   },
   "git-hunk": {
     "repo": "shhac/git-hunk",
-    "tag": "v0.18.1",
-    "commit": "4522bc205fa27df69a7907028f731e2cea1afa72",
-    "version": "0.18.1",
-    "synced_at": "2026-08-20T20:40:34Z"
+    "tag": "skill-v0.18.2",
+    "commit": "61c0315d050091732738e5d860763593b395df43",
+    "version": "0.18.2",
+    "synced_at": "2026-08-31T18:14:59Z"
   },
   "lin": {
     "repo": "shhac/lin",
