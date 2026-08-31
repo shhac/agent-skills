@@ -134,9 +134,9 @@
   },
   "g2g": {
     "repo": "shhac/g2g",
-    "tag": "v0.29.0",
-    "commit": "a4aac532d6a0c2e7bea334613927cd9fbfa1c414",
-    "version": "0.29.0",
-    "synced_at": "2026-08-27T16:57:40Z"
+    "tag": "skill-v0.29.1",
+    "commit": "1a9888e3c23997d723d527984ac303962a033cdb",
+    "version": "0.29.1",
+    "synced_at": "2026-08-31T18:11:51Z"
   }
 }
