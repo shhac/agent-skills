@@ -49,6 +49,45 @@ GitHub workflow, never edited in place.
    `skill_path` defaults to `skills/<skill_name>` in the source repo; pass it
    explicitly if the skill lives elsewhere.
 
+## Description budget
+
+The sync fails the release if a skill's frontmatter `description` is longer
+than **1024 characters** — Codex's hard cap, above which it refuses to load
+the skill at all. The check runs against the source checkout before anything
+is written here, so the release fails while the author can still act on it.
+
+Fitting the cap is the floor, not the goal. Codex also gives *all* installed
+skills a shared budget of 2% of the context window, and shortens descriptions
+across the board once they exceed it — so a description that is merely legal
+still taxes every other skill the user has installed. Two habits keep them
+small:
+
+- **Don't restate the prose in `Triggers:`.** A keyword already in the
+  description sentence adds nothing to matching.
+- **Put detail in the body.** Capability lists, flags and operating modes
+  belong in `SKILL.md` below the frontmatter, where they cost nothing until
+  the skill is actually loaded.
+
+Note that `when_to_use:` is *not* read by Codex — its frontmatter parser knows
+`name`, `description`, `metadata`, `license` and `allowed-tools`. Claude Code
+does render it, so anything load-bearing should live in `description`.
+
+A repo can hold itself to something stricter than the cap:
+
+```yaml
+   with:
+     skill_name: <tool>
+     max_description_chars: 600
+```
+
+Only downward — a value above 1024 is rejected, since the cap is external.
+
+To check before tagging, run the same script the workflow runs:
+
+```bash
+python3 scripts/check-skill.py path/to/skills/<name>/
+```
+
 ## Tagging conventions
 
 - **`vX.Y.Z`** — a normal CLI release. The skill is synced automatically as

@@ -12,6 +12,8 @@
 #       uses: shhac/agent-skills/.github/workflows/sync-skill.yml@main
 #       with:
 #         skill_name: agent-notion
+#         # optional: hold this skill to a stricter description budget
+#         # max_description_chars: 600
 #       secrets:
 #         SKILLS_DEPLOY_KEY: ${{ secrets.SKILLS_DEPLOY_KEY }}
 name: Sync skill
@@ -28,6 +30,16 @@ on:
         required: false
         type: string
         default: ""
+      max_description_chars:
+        description: >-
+          Character budget for the skill's frontmatter description. Defaults to
+          Codex's hard cap of 1024, above which it refuses to load the skill. A
+          repo may opt into a stricter budget — descriptions also share a
+          context budget across every skill a user has installed — but not a
+          looser one.
+        required: false
+        type: number
+        default: 1024
     secrets:
       SKILLS_DEPLOY_KEY:
         description: Deploy key with write access to shhac/agent-skills
@@ -48,6 +60,20 @@ jobs:
           repository: shhac/agent-skills
           ssh-key: ${{ secrets.SKILLS_DEPLOY_KEY }}
           path: agent-skills
+
+      # Gate the release on the description fitting Codex's budget. Checked
+      # against the source checkout, before anything is written here, so a
+      # release that would ship an unloadable skill fails loudly at the point
+      # the author can still act on it.
+      - name: Check skill description length
+        env:
+          SKILL_NAME: ${{ inputs.skill_name }}
+          SKILL_PATH: ${{ inputs.skill_path }}
+          MAX_DESCRIPTION_CHARS: ${{ inputs.max_description_chars }}
+        run: |
+          python3 agent-skills/scripts/check-skill.py \
+            --max "$MAX_DESCRIPTION_CHARS" \
+            "$GITHUB_WORKSPACE/source/${SKILL_PATH:-skills/$SKILL_NAME}"
 
       # Sync + commit + push in one retry loop. Derived files (manifest, the
       # README table, plugin.json, marketplace.json) are regenerated from
