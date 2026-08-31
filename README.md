@@ -86,7 +86,7 @@ versions and provenance.
 | agent-cloudflare | Read-first Cloudflare operations triage via a secret-safe CLI | [shhac/agent-cloudflare](https://github.com/shhac/agent-cloudflare) |
 | agent-code-review | PR review queue + scheduler CLI | [shhac/agent-code-review](https://github.com/shhac/agent-code-review) |
 | agent-dd | Triage and investigate Datadog monitors, logs, metrics, traces, incidents, and SLOs, and create… | [shhac/agent-dd](https://github.com/shhac/agent-dd) |
-| agent-deepweb | Credential-gated HTTP requests for AI agents via named profiles | [shhac/agent-deepweb](https://github.com/shhac/agent-deepweb) |
+| agent-deepweb | Credential-gated HTTP requests via named profiles; stored secret values are never visible to th… | [shhac/agent-deepweb](https://github.com/shhac/agent-deepweb) |
 | agent-dlocal | Investigate and triage dLocal payins, payouts, refunds, and chargebacks across LatAm, Africa, a… | [shhac/agent-dlocal](https://github.com/shhac/agent-dlocal) |
 | agent-fathom | Search and read Fathom meeting recordings | [shhac/agent-fathom](https://github.com/shhac/agent-fathom) |
 | agent-incident | Triage and manage incident.io incidents, alerts, schedules, escalations, and status pages | [shhac/agent-incident](https://github.com/shhac/agent-incident) |

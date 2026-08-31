@@ -22,10 +22,10 @@
   },
   "agent-deepweb": {
     "repo": "shhac/agent-deepweb",
-    "tag": "v0.18.2",
-    "commit": "aec9d8052ea0bc3ebfa75d9c4f9fb9f167dec536",
-    "version": "0.18.2",
-    "synced_at": "2026-08-07T13:56:08Z"
+    "tag": "skill-v0.18.3",
+    "commit": "d54cf549af63d376eb8fab004c083a59d7b8c21b",
+    "version": "0.18.3",
+    "synced_at": "2026-08-31T18:11:39Z"
   },
   "agent-incident": {
     "repo": "shhac/agent-incident",
