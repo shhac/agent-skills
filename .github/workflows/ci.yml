@@ -16,4 +16,4 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Check every shipped skill's description length
-        run: python3 scripts/check-skill.py skills/*/
+        run: python3 scripts/check-skill.py --max 650 skills/*/
