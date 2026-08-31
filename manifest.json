@@ -138,5 +138,12 @@
     "commit": "1a9888e3c23997d723d527984ac303962a033cdb",
     "version": "0.29.1",
     "synced_at": "2026-08-31T18:11:51Z"
+  },
+  "agent-motion": {
+    "repo": "shhac/agent-motion",
+    "tag": "v0.1.0",
+    "commit": "5f0a0cd6ba4fdea295fb4147ff8a111736bf2efd",
+    "version": "0.1.0",
+    "synced_at": "2026-08-31T18:20:13Z"
   }
 }
