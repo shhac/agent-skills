@@ -4,7 +4,8 @@ description: |
   Read-only MongoDB CLI. Use when exploring databases, collections, schemas,
   or indexes, querying documents (find, get by id, count, sample, distinct,
   aggregate), checking database or collection statistics, or managing
-  MongoDB connections and credentials.
+  MongoDB connections and credentials — including identity-provider login
+  (MONGODB-OIDC, workforce/workload identity federation, SSO).
 allowed-tools: Bash(agent-mongo *) Read Grep Glob
 ---
 
@@ -39,6 +40,14 @@ exists holding different values, the add is refused; follow the error's hint
 (rotate via `credential add --form`, or reference the existing credential
 with `--credential`). `connection list` always redacts passwords in
 connection strings.
+
+Some deployments authenticate against an identity provider instead
+(MONGODB-OIDC) — see [references/auth.md](references/auth.md) to set one up.
+
+**If any command fails with `fixable_by: human` naming `credential login`,
+stop and ask the person to run it.** No retry fixes it and no agent can
+complete it: the login is deliberately human-only. This is the one auth
+failure that is not a bug to work around.
 
 ## Exploring a database
 
@@ -211,5 +220,6 @@ Use `agent-mongo <command> usage` when you need deep detail on a specific domain
 
 ## References
 
+- [references/auth.md](references/auth.md): identity-provider (OIDC) credentials
 - [references/commands.md](references/commands.md): full command map + all flags
 - [references/output.md](references/output.md): NDJSON output shapes + field details
