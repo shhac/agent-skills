@@ -5,10 +5,8 @@ description: |
   queue of pull requests awaiting automated review, adding, removing,
   promoting, or skipping candidates by hand, running a one-shot review pass
   or the serve daemon and its dashboard, or checking which repos, author
-  groups, and schedule the reviewer is configured with. Also covers author
-  SCORING: the points a reviewed PR earns its author, the leaderboard
-  standings, and correcting or re-deriving a score. Triggers: unblock PRs,
-  leaderboard, who is winning, why did this PR score that.
+  groups, and schedule the reviewer is configured with. Triggers: unblock
+  PRs.
 allowed-tools: Bash(agent-code-review *) Read Grep Glob
 ---
 
@@ -32,13 +30,10 @@ agent-code-review queue ls --repo owner/name
 ```
 
 The queue holds only pending work, FIFO by first discovery; a row with
-`claimed_at` set is being reviewed right now, and a row carries a `holds` map
-of name to expiry (`settling` = the PR was pushed or edited within
-`candidates.quiet_period`; `cooldown` = we reviewed it within
-`candidates.rereview_cooldown`; `editing` = its author has the dashboard's
-steering editor open, for `candidates.steering_hold`). It is dispatched once
-every one of them is past, keeping its queue position and being stepped over
-until then. Completed
+`claimed_at` set is being reviewed right now, and a row with `eligible_at` in
+the future is **on hold** (`hold_reason`: `settling` = the PR was pushed or
+edited within `candidates.quiet_period`; `cooldown` = we reviewed it within
+`candidates.rereview_cooldown`); it is not dispatched until then. Completed
 outcomes live in history (see the dashboard's History page).
 
 ## Manage candidates
@@ -74,46 +69,6 @@ Resolution: the roster row for this repo, else the row for `*`, else
 override patches it field by field. `authors who` names the deciding layer per
 field, which is how to answer "why did that PR get approved / ignored". Only
 this PR's own resolved policy reaches the engine, never the roster.
-
-## Author scores and the leaderboard
-
-Every completed review earns the PR's **author** points, from the diff's size,
-the verdict, whether the codebase grew or shrank, and how many revisions it
-took. Generated and vendored files are excluded, read from the repo's own
-`.gitattributes`.
-
-```bash
-agent-code-review score leaderboard                  # standings, highest first
-agent-code-review score leaderboard --days 30        # a window
-agent-code-review score show owner/repo 123          # every scored review of one PR
-agent-code-review score ls --missing                 # rows that were never scored
-```
-
-Points scale with how much was reviewed, so the bucket multipliers set a RATE
-rather than a flat fee per PR. Splitting a large change into well-sized pieces
-earns more than shipping it whole; fragmenting it into tiny ones earns less
-than either.
-
-Scores are **frozen** when a review completes, alongside a hash of the rules
-that produced them, so retuning config changes what FUTURE reviews earn and
-nobody loses points they already have.
-
-```bash
-agent-code-review score ls --stale                   # scored under older rules
-agent-code-review score recompute --stale --dry-run  # what would change
-agent-code-review score recompute --stale            # apply it
-agent-code-review score refetch --missing            # re-measure from GitHub
-agent-code-review score set owner/repo 123 0 --note "duplicate of #120"
-```
-
-`recompute` is offline: it re-derives from each row's stored measurement, so
-changing which paths are excluded needs no network. `refetch` asks GitHub again
-and is the only repair for a row whose size was never measured; it needs the PR
-to still be at the head that was reviewed.
-
-Both move points people already have, so both refuse to touch all of history
-without `--all`, both take `--dry-run`, and a score set by hand is left alone
-unless `--include-manual` is passed.
 
 ## Run reviews
 
@@ -161,11 +116,4 @@ hardcodes repos or GitHub handles; everything is config.
 - Manage watched repos with `repos ls|add|rm`, prompts with
   `prompts show|set|unset|preview`, and scalar dials with
   `config list|get|set|unset` (all persisted to config.json).
-- Scoring can be switched off globally with `config set scoring.mode`:
-  `enabled` (measure and score), `leaderboard-only` (stop measuring, which
-  removes the per-review GitHub call scoring adds, while still showing the
-  points already earned), or `disabled` (also hides the leaderboard in the
-  dashboard). It can be narrowed per repo under `scoring.repos`.
-- A second review at the same commit (somebody replying to the bot) scores 0:
-  it is discussion, not new work. The leaderboard pays once per revision.
 - Every command group has a `usage` subcommand with full docs and examples.
