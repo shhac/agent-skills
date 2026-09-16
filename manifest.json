@@ -134,10 +134,10 @@
   },
   "g2g": {
     "repo": "shhac/g2g",
-    "tag": "skill-v0.29.1",
-    "commit": "1a9888e3c23997d723d527984ac303962a033cdb",
-    "version": "0.29.1",
-    "synced_at": "2026-08-31T18:11:51Z"
+    "tag": "v0.30.0",
+    "commit": "0dd6d398cd34f56efec2da5565a43900b1df74fa",
+    "version": "0.30.0",
+    "synced_at": "2026-09-16T23:05:11Z"
   },
   "agent-motion": {
     "repo": "shhac/agent-motion",
