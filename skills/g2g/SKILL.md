@@ -4,9 +4,11 @@ description: |
   Develop, test, or safely use the g2g Go CLI, which records stacked
   branches itself and projects them onto GitHub. Graphite is an optional
   source it can read, mirror to, and import from, never a requirement. Use
-  when working on g2g's commands (track, link, sync, prune, restack,
-  retarget, submit, push, land, graph, mirror, import), stack scope and
-  structure, source resolution and alignment, CLI tests, or release readiness.
+  when working on g2g's commands (track, create, delete, fold, rename,
+  up/down/top/bottom, link,
+  sync, prune, restack, retarget, submit, push, land, comment, graph, mirror,
+  import), stack scope and structure, source resolution and alignment, CLI
+  tests, or release readiness.
   Triggers: gt2gh, stack without Graphite, restack after squash merge,
   merge a stack down.
 ---
@@ -31,7 +33,9 @@ description: |
 
 ## Work in this repository
 
-- Read `README.md` and `design-docs/initial-scope.md` before changing behavior.
+- Read `README.md` and the design doc for the area before changing behavior;
+  `design-docs/initial-scope.md` is the historical starting point, not the
+  current contract.
   For anything touching the g2g-owned branch forest, read
   `design-docs/g2g-owned-graphs.md` first.
 - **Graphite is not authoritative.** Structure is resolved per invocation, and a
@@ -44,8 +48,10 @@ description: |
   invocation prints help.
 - `--take` only ever changes the outcome for a branch that has genuinely
   diverged from its own published version; every other classification `collect`
-  makes is take-independent. `--through <branch>` bounds it to a prefix of the
-  stack and refuses the divergence above, which is a narrowing rather than an
+  makes is take-independent. `--through <branch>` bounds it to that branch and
+  what it is stacked on — its ancestry, never a position in a flattened list,
+  so a sibling fork is outside the boundary — and refuses the divergence
+  elsewhere, which is a narrowing rather than an
   enabler: unbounded, `--take published` reaches every diverged branch in the
   selection, including ones the user was not thinking about.
 - `sync` has nothing to do with pull requests. It brings a stack up to date with
@@ -63,8 +69,11 @@ description: |
   weaker push mode.
 - A command that did part of what it was asked and stopped exits `3` — not `0`,
   which told a script the work had finished, and not the failure status, because
-  what it achieved is not coming back. `sync` stopping mid-replay and `land`
-  stopping mid-descent are both this. `stoppedPartWay` marks it and nothing
+  what it achieved is not coming back. `sync` stopping mid-replay, `land`
+  stopping after something merged or was tidied, `comment` stopping after
+  writing some comments, `create -m` whose commit failed after the record, and
+  a `delete`/`fold`/`rename` whose rollback could not finish are all this; a descent that changed nothing is an ordinary failure.
+  `stoppedPartWay` marks it and nothing
   further is printed, because the report is already on stdout.
 - `land` takes a finished stack down onto its trunk, bottom branch first. Read
   `design-docs/land.md` before changing it. It refuses a stack g2g has not
@@ -157,11 +166,59 @@ description: |
   invariant; do not pair `Track` with a hand-rolled promotion step, and never
   take the trunk list from the graph as it was before the edge was recorded.
 - `untrack` must never reparent the children it strands. Report them.
+- `delete`, `fold` and `rename` (`internal/reshape`, which reaches Git and the
+  graph and nothing else) act only on branches the g2g graph records and refuse
+  the rest naming `g2g track`. `delete` is the one place children are
+  reparented, onto the deleted branch's parent, because the user asked for the
+  branch to go; do not extend that to `untrack` or `prune`. The children keep
+  their fork points, so the next restack drops the deleted branch's commits
+  from them, and the preview must say so and name each of those commits that
+  exists nowhere else (not in the parent by content, per `landed.Into` and
+  `Cherry`; on no remote-tracking ref — a local read). None of the three
+  replays a commit: `fold` only fast-forwards the parent under a lease, and
+  refuses a trunk (naming `g2g land`) and a parent that moved on (naming
+  `g2g restack`). A ref moved under the checkout brings the tree with it
+  through `SwitchTree`; a branch another worktree holds is refused for delete
+  and fold, and allowed for rename because `git branch -m` moves that
+  worktree's HEAD. Steps are ordered so all but the last can be put back, and a
+  rollback that cannot finish exits `3`. There is no `split`: choosing which
+  commit goes where is interactive and a guess.
+- `create` takes its parent from the branch you stand on or `--parent`, which
+  is the user stating it, so it offers no candidates. It refuses a parent the
+  graph does not record (tracked, or a trunk something sits under) unless it is
+  the repository's default branch, because recording a child under an unknown
+  branch silently makes that branch a trunk. It records through `PlanTrack` and
+  `ApplyTrack`, never its own write. Order is switch, record, commit: a failed
+  record is rolled back completely (switch back, delete the branch, which has
+  nothing on it), and a failed commit after the record keeps both and exits `3`.
+- `up`/`down`/`top`/`bottom` are the only commands that act without `--apply`,
+  and that exception is deliberate: moving the checkout changes no ref, record
+  or remote, and `git switch` refuses to clobber local changes. Do not add a
+  preview, and do not extend the exception to anything that writes. They
+  resolve through the same `stack.Resolver` as every stack command, refuse at a
+  fork naming the children, switch with `--no-guess`, honour the restack guard,
+  and offer `--dry-run`. A trunk is undescribed by every source, so from one
+  they ask the g2g graph for its recorded children and resolve onward from the
+  single child.
 - `mirror` and `import` must never remove a branch from the g2g graph.
   Alignment keeps the two records in step; it does not transfer ownership.
   `mirror` writes Graphite only, `import` writes the g2g graph only, and
   `import` refuses a branch the g2g graph already records under a different
   parent rather than resolving the disagreement.
+- `import --from pull-request` adopts a published stack through the same
+  planning (`planAdoptions`: additive, conflict refusal, parents first); only
+  the record read and the fork point differ. `--from graphite` stays the
+  default and unchanged, `--from g2g` is refused, and `--branch`/`--scope
+  stack|trunk` are refused with Graphite because it is read whole. It selects
+  through the pull request source's own `Select` and is the only import that
+  invokes `gh`. It never creates a branch: anything the pull requests place that
+  is not local (`Snapshot.Absent`, or a base not here) refuses the plan with
+  `git fetch && git switch <branch>` / `git branch <branch> origin/<branch>`.
+  The stack's base must already be recorded or be `DefaultBranch` — evidence
+  permitting a root, as in `create`, never choosing a parent. The fork point is
+  the merge base with the base, never the base's tip, because the base may have
+  moved since the pull request was opened. Its revalidation re-reads GitHub, so
+  it is wired with a selector that has no memo.
 - Mirror ordering is dictated by Graphite's CLI, not by taste: writes go
   parents before children because `gt track --parent` requires a tracked
   parent, and prunes go deepest first — refusing any stranger with a surviving
@@ -181,9 +238,9 @@ description: |
   rebased by hand fails that, and replaying anyway pulls the base's own commits
   into the range. Refuse and tell the user to retrack.
 - A branch whose parent is being rewritten must be rewritten too, even when it
-  still sits exactly where its fork point says. Every range passed to an engine
-  starts at the topmost step's fork point, because the engines replay the union
-  onto one base.
+  still sits exactly where its fork point says. Each independent root is its
+  own replay, and every range passed to an engine starts at that root's fork
+  point, because an engine replays the union onto one base.
 - restack is the only resumable operation. Every other mutating command must
   refuse while its journal exists, `--continue` recomputes from the refs rather
   than resuming a stored queue, and `--abort` restores tips the journal
@@ -195,11 +252,13 @@ description: |
   `--json` `schemaVersion`; an unrecognised store version fails closed.
 - `--scope branch|path|subtree|stack|trunk|all` is selection, not projection
   policy. Displaying a subtree does not imply a subtree can be linked on GitHub.
-  The type and the traversal live in `stack` because both records answer them.
+  The type and the traversal live in `internal/shape`, which depends on
+  nothing, because every record answers them and `internal/graph` needs them.
 - **A command must refuse any scope it did not offer, and name its own
   default.** They genuinely differ: `status` and `graph` default to `stack`
   because reading is free, `restack` to `subtree` because rewriting is not, and
-  only a read-only command offers `all`. `ParseScope` takes both the accepted
+  `all` is offered only where nothing is rewritten: the read-only commands, and
+  `prune`, which edits the record and forgets only what has landed. `ParseScope` takes both the accepted
   set and the fallback; there is no global default left to inherit.
 - Projection is a capability, not a scope. `link`, `submit`, `push` and
   `retarget` take `stack|path` and refuse a forked selection through
@@ -207,9 +266,10 @@ description: |
 - Selected from a trunk, `stack` is the whole tree under it — a trunk's path is
   itself. That is how a rewrite asks for an entire shape without being handed a
   scope that could reach another trunk.
-- `trunk` and `all` are deliberately absent from `RewriteScopes`. A wide rewrite
-  is far likelier to reach a branch checked out in another worktree, and Git
-  refuses to check out a branch already checked out elsewhere.
+- `all` is deliberately absent from `RewriteScopes`: it spans trunks, and a
+  rewrite acts on one. `trunk` is offered, and a rewrite that wide is the
+  likeliest to reach a branch checked out in another worktree, which the
+  rewrite then refuses by name.
 
 ## Source resolution
 
@@ -240,6 +300,16 @@ description: |
 - A diverged base is reported, never merged or reset. Pruning edits the graph
   and never deletes a branch.
 
+- `comment` keeps one marked comment per pull request listing its stack. Read
+  `design-docs/stack-comment.md` before changing it. It always keeps the whole
+  stack the branch belongs to — each comment lists its own ancestors and
+  descendants, so a partial run would leave comments disagreeing — and has no
+  `--scope`. Merged history lives in the comments' own data line because
+  nothing local remembers a pruned branch; keep only what GitHub says merged,
+  never create a comment on a merged pull request, never edit a comment without
+  the marker, and leave alone one the viewer cannot edit or a pull request
+  carrying two. Writes are `addComment`/`updateIssueComment` by node id with the
+  body as a raw `-f` field; errors must not echo the body.
 - `retarget` is the only command a user runs to change what a merge will do,
   and `land` reaches for the same client method rather than growing its own —
   a child's base only goes stale during a descent, once the branch below it has
@@ -294,11 +364,14 @@ description: |
   renderers over the same validated view, they suppress colour and every
   human-facing line, and `schemaVersion` signals breaking changes. Never scrape
   the pretty graph.
-- A blocked preview names the repairing command: merged pull requests point at
-  `g2g sync` when the recorded stack needs its base advanced and replayed,
-  missing or closed ones at `g2g submit`, and a wrong base at `g2g retarget`.
-  Two open pull requests for one branch is deliberately unadvised — a person
-  must choose.
+- A blocked preview names the repairing command, decided once in
+  `link.Plan.Repair` (a `repair.Note`) and rendered from it for both readers:
+  merged pull requests point at `g2g sync` for a g2g-recorded stack and `gt
+  sync` for a Graphite one, landed branches at `g2g prune`/`gt sync`, missing or
+  closed ones at `g2g submit`, and a wrong base at `g2g retarget` — never
+  `sync`, which does not touch pull requests. A structure read from pull request
+  bases gets no command, because nothing here records it. Two open pull
+  requests for one branch is deliberately unadvised — a person must choose.
 - A branch's annotation is a list of `stackMark` — one axis each, one severity
   each: `base✓`/`base✗`, `head✗`, `pr✗`, and a subject-less mark for what is
   about no axis. Build them and call `stackNode.marked`, which renders `State`
@@ -339,5 +412,6 @@ description: |
 - After command discovery, use the resolved command's `--help` or `link --help`
   to inspect the current interface (for example, `g2g link --help` after a
   Homebrew install).
-- Require read-only discovery and dry-run output before `sync --apply` can
-  change GitHub state.
+- Read the preview before any `--apply`. `sync` never changes GitHub; the
+  commands that do are `link`, `unlink`, `submit`, `retarget`, `comment` and
+  `land`.
