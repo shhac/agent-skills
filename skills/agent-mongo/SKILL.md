@@ -177,7 +177,9 @@ agent-mongo --timeout 60000 query find myapp large_collection --filter '{"status
 agent-mongo --timeout 120000 collection schema myapp events
 ```
 
-On timeout (MongoDB code 50), the error hint suggests increasing the timeout or checking indexes.
+The server is sent the same limit (`maxTimeMS`), so a timed-out query stops on the server as well — it does not keep running after the CLI gives up. On timeout, the error hint suggests increasing the timeout or checking indexes.
+
+Every command is tagged for the server log, profiler and `currentOp`: `comment` is the command path (`agent-mongo query find`) and the connection's `appName` is `agent-mongo/<version>` (unless the connection string sets one).
 
 ## Configuration
 
@@ -192,14 +194,14 @@ Key settings: `defaults.limit` (20), `defaults.sampleSize` (5), `defaults.schema
 
 ## MCP server
 
-`agent-mongo mcp` runs the read-only data commands (`database`, `collection`, `query`, `connection`) as MCP tools over stdio (or Streamable HTTP with `--http <addr>`). Credential and config commands are not exposed. See `agent-mongo mcp usage` for registration, OAuth, and Tailscale details.
+`agent-mongo mcp` runs the read-only commands (`database`, `collection`, `query`, and `connection list`/`test`) as MCP tools over stdio (or Streamable HTTP with `--http <addr>`). Credential and config commands are not exposed. See `agent-mongo mcp usage` for registration, OAuth, and Tailscale details.
 
 ## Safety
 
 - **Read-only**: No write operations exist
 - **Aggregation**: `$out` and `$merge` stages rejected
-- **Result cap**: `query.maxDocuments` (default 100)
-- **Timeout**: applies to both connections and queries (default 30s), override per-command with `-t/--timeout <ms>`
+- **Result cap**: `query.maxDocuments` (default 100), including aggregations with their own `$limit`
+- **Timeout**: applies to both connections and queries (default 30s) and is enforced server-side via `maxTimeMS`; override per-command with `-t/--timeout <ms>`
 
 ## Per-command usage docs
 

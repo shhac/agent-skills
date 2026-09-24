@@ -36,10 +36,10 @@
   },
   "agent-mongo": {
     "repo": "shhac/agent-mongo",
-    "tag": "v0.13.0",
-    "commit": "bf2c8499d9a81561d25eac84e0e2f8ecebbdd65a",
-    "version": "0.13.0",
-    "synced_at": "2026-09-03T09:16:29Z"
+    "tag": "v0.14.0",
+    "commit": "5b8b4a1cc85a45e21fcbe3e1c7371937289e8bd8",
+    "version": "0.14.0",
+    "synced_at": "2026-09-24T10:38:50Z"
   },
   "agent-posthog": {
     "repo": "shhac/agent-posthog",

@@ -53,12 +53,13 @@ All `query` commands accept `--echo-query`, which adds an `{"@query": ...}` line
 - `agent-mongo query count <database> <collection> [--filter <json>] [-c <alias>]` — count documents (omit filter for total)
 - `agent-mongo query sample <database> <collection> [--size <n>] [--filter <json>] [-c <alias>]` — random documents (default: 5, configurable via defaults.sampleSize). Use --filter to sample from a subset.
 - `agent-mongo query distinct <database> <collection> <field> [--filter <json>] [-c <alias>]` — distinct values (supports dot notation)
-- `agent-mongo query aggregate <database> <collection> [pipeline] [--pipeline <json>] [--limit <n>] [-c <alias>]` — run aggregation ($out/$merge rejected; pipeline as positional arg, --pipeline flag, or stdin)
+- `agent-mongo query aggregate <database> <collection> [pipeline] [--pipeline <json>] [--limit <n>] [-c <alias>]` — run aggregation ($out/$merge rejected; pipeline as positional arg, --pipeline flag, or stdin). `--limit` applies when the pipeline has no `$limit`; a pipeline's own `$limit` is capped at `query.maxDocuments`, with `@pagination.has_more` when cut short
 
 ## MCP
 
-- `agent-mongo mcp [--http <addr>] [--oauth local] [--public-url <url>] [--tailscale funnel|serve]` — run the read-only data commands (database, collection, query, connection) as MCP tools; stdio by default. Credential/config not exposed.
-- `agent-mongo mcp pair rotate|reset` — manage the local-OAuth pairing code and stored secrets
+- `agent-mongo mcp [--http <addr>] [--oauth local] [--public-url <url>] [--tailscale funnel|serve]` — run the read-only commands (database, collection, query, connection list/test) as MCP tools; stdio by default. Credential/config and connection add/update/remove/set-default are not exposed.
+- `agent-mongo mcp pair add <name> --bind connection=<alias>` — a named principal whose calls are pinned to that connection (carried in the environment; a principal with no binding is refused)
+- `agent-mongo mcp pair list|show|rotate|remove|reset` — manage pairing codes, named principals and stored secrets
 - `agent-mongo mcp schema` — print the MCP tool manifest as JSON (no server started)
 
 ## Usage
