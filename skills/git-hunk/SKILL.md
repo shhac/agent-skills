@@ -99,6 +99,13 @@ changes.
 | `count` | Bare integer hunk count | `--staged`, `--file` |
 | `check` | Verify hashes still valid | `--staged`, `--exclusive`, `--allow-empty`, `--file`, `--porcelain` |
 
+A `stash` entry has the same shape as `git stash push --keep-index -- <paths>`
+would give it, so `git stash pop --index` keeps what is staged staged.
+`git hunk stash pop` also merges the hunks back into a file that has other
+unstaged changes, which `git stash pop` refuses; a conflict keeps the entry
+and exits 1, as git's does. Like `git stash`, `git hunk stash` refuses while
+any intent-to-add (`git add -N`) entry exists.
+
 All commands accept `--help`, `--no-color`, `--tracked-only`, `--untracked-only`,
 `--quiet`/`-q`, `--verbose`/`-v`, and `-U<n>`/`--unified=<n>`. SHA prefixes need at least 4 hex characters. Use `--file`
 to disambiguate prefix collisions. Use `git-hunk <command> --help` for detailed
@@ -110,7 +117,8 @@ Hashes are deterministic: staging or unstaging other hunks does **not** change t
 remaining hashes. List once, then stage multiple hunks together in one command.
 
 The hash is computed from: file path, stable line number (worktree side for unstaged,
-HEAD side for staged), and diff content (`+`/`-` lines only). Staged and unstaged
+HEAD side for staged), and diff content (`+`/`-` lines only; a binary file's blob
+ids). Staged and unstaged
 hashes for the same hunk differ -- use `add`'s `->` output to track the mapping.
 
 ## Line specs (`sha:3-5,8`)
@@ -158,6 +166,12 @@ Line specs work on untracked files directly — `git hunk add <sha>:2` on a
 brand-new file stages just that line. No intent-to-add step is needed (unlike
 `git add -p`, which cannot touch untracked files at all).
 
+A line spec on a new or deleted file works in every direction and leaves the
+unselected lines where they were: `reset <sha>:2` on a staged new file unstages
+that line and keeps the rest staged, `add <sha>:2` on a deleted file removes just
+that line from the index, and `restore --force <sha>:2` on an untracked file
+removes that line and keeps the file.
+
 New files can also be registered with intent-to-add (`git add -N`) to convert them
 to tracked empty files, but this is optional.
 
@@ -165,11 +179,11 @@ Deleted files appear automatically when a tracked file is removed.
 
 ## Working with hunks from history (`--ref` and `--3way`)
 
-Every command accepts `--ref <refspec>`. A **single ref** like `HEAD~1`, `abc1234`,
-or a branch name is shorthand for `<ref>^..<ref>` — i.e. *that commit's diff*
-(matching `git show <ref>` semantics). A **range** like `main..HEAD` keeps its
-literal "diff between two refs" meaning. To compare a ref against the worktree,
-write the range form `main..HEAD` explicitly.
+Every command except `stash` accepts `--ref <refspec>`. A **single commit** like
+`HEAD~1`, `abc1234`, or a branch name means *that commit's changes* against its
+first parent (the empty tree for a root commit). A **range** like `main..HEAD`
+is the diff between two commits, as `git diff` reads it. With `--staged`, a
+single ref compares the index with that commit instead.
 
 This unlocks two cherry-pick-by-hunk workflows:
 
@@ -203,6 +217,7 @@ worktree, plain `git apply` fails with `patch did not apply cleanly`. Add
 ```bash
 git hunk restore --ref HEAD~10 --3way abc1234
 # either succeeds cleanly, or leaves <<<<<<< conflict markers in the worktree
+# (restore changes the index only to record such a conflict)
 ```
 
 `--3way` is supported by `add`, `reset`, `restore`, and `commit`.
@@ -231,8 +246,11 @@ All errors go to stderr. Exit 0 on success, 1 on error. Common errors:
 - `error: no hunk matching '<sha>'` -- hash not found
 - `error: ambiguous prefix '<sha>'` -- use longer prefix or `--file`
 - `error: patch did not apply cleanly` -- re-run `list` and try again
-- `no unstaged changes` / `no staged changes` -- nothing to operate on
-- `error: <sha> (<file>) is an untracked file -- use --force to delete` -- restore requires `--force` for untracked files (dry-run bypasses this gate)
+- `error: changes from '<ref>' do not apply cleanly to the index` (or `worktree`) -- context drifted; retry with `--3way`
+- `error: bad revision '<ref>'` -- git cannot resolve what `--ref` names
+- `no unstaged changes` / `no staged changes` / `no changes in '<ref>'` / `no staged changes relative to '<ref>'` -- nothing to operate on
+- `error: line selection not supported for <binary file|typechange|symlink|empty file> '<file>'` -- use the whole hunk
+- `error: <sha> (<file>) is an untracked file -- restoring it cannot be undone; use --force` -- restore requires `--force` for untracked files (dry-run bypasses this gate)
 
 ## References
 

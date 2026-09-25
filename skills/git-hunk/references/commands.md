@@ -47,7 +47,15 @@ A spec selecting only context lines fails loudly:
 error: no changes in selected lines of hunk a3f7c21
 ```
 
-(exit 1, nothing staged). A spec selecting the *wrong* changed lines **cannot**
+(exit 1, nothing staged). So does any spec on a hunk that has no lines to pick
+from, or none that make a file on their own — a binary file, either half of a
+typechange, a symlink, or an empty file:
+
+```
+error: line selection not supported for symlink 'link'
+```
+
+A spec selecting the *wrong* changed lines **cannot**
 be detected — changes were selected, just not the intended ones. This is the
 reason to read the numbers off `diff -n` rather than count them by hand.
 
@@ -57,9 +65,24 @@ reason to read the numbers off `diff -n` rather than count them by hand.
 context-vs-change distinction collapses. It also changes hunk hashes, so `list`
 and the follow-up command must pass the same `-U` value.
 
-### Untracked files
+### New, deleted and untracked files
 
 Line specs work on untracked files directly; no `git add -N` is required.
+
+A line spec on a new or deleted file works in every direction and leaves the
+unselected lines where they were, the way a hand edit would:
+
+| Command | Result |
+|---------|--------|
+| `add <new>:2` | Stages a new file holding line 2 |
+| `reset <staged-new>:2` | Line 2 leaves the index; the other lines stay staged |
+| `restore --force <untracked>:2` | Removes line 2; the file stays |
+| `add <deleted>:2` | Removes line 2 from the index; the file stays tracked |
+| `reset <staged-deleted>:2` | Puts only line 2 back in the index |
+| `restore <deleted>:2` | Brings back a file holding only line 2 |
+
+Selecting every removal of a file that shrinks leaves it tracked and empty,
+never deleted.
 
 ## git-hunk list
 
@@ -76,7 +99,7 @@ git-hunk list [--staged] [--file <path>] [--porcelain] [--oneline] [--unified <n
 | `--staged` | Show staged hunks (HEAD vs index) instead of unstaged (index vs worktree) |
 | `--file <path>` | Only show hunks for the given file path, resolved relative to the current directory. May be repeated to match any of several files. |
 | `--files-from <path>` | Read file paths from `<path>`, one per line; `-` reads stdin. Composes with repeated `--file` (the lists are merged). NUL-separated input is auto-detected, so `git ls-files -z \| git hunk add --files-from -` is safe for paths containing newlines. |
-| `--ref <refspec>` | Source the diff from a git ref. **Single ref** (e.g. `HEAD~1`, `abc1234`) is shorthand for `<ref>^..<ref>` — that commit's diff (`git show` semantics). **Range** (e.g. `main..HEAD`) is the literal diff between two refs. Initial commits (no parent) diff against the empty tree. Combines with `--staged` for ref vs index comparison. |
+| `--ref <refspec>` | Source the diff from a git ref. **Single commit** (e.g. `HEAD~1`, `abc1234`) means that commit's changes against its first parent. **Range** (e.g. `main..HEAD`) is the diff between two commits, as `git diff` reads it. An unresolvable ref fails with `error: bad revision '<ref>'`. A root commit diffs against the empty tree. Combines with `--staged` for ref vs index comparison. |
 | `--porcelain` | Tab-separated machine-readable output. See [output format](output.md). |
 | `--oneline` | Compact one-line-per-hunk output without inline diff content. |
 | `--unified <n>` / `-U<n>` / `--unified=<n>` | Number of context lines to use in diffs (default: git's `diff.context` or 3). Lower values produce more granular hunks. |
@@ -104,7 +127,7 @@ git-hunk list --no-color                         # disable color output
 
 - Exits 0 with empty output if there are no hunks (or no hunks matching the filter).
 - Binary files are skipped.
-- Rename-only changes (no content diff) are skipped.
+- Rename-only and copy-only changes (no content diff) are skipped.
 - Mode-only changes are skipped.
 - Untracked files are included by default in unstaged mode. Use `--tracked-only` or `--untracked-only` to filter.
 
@@ -132,7 +155,7 @@ git-hunk diff <sha[:lines]>... [--staged] [-n] [--file <path>] [--porcelain] [--
 | `--number` / `-n` | Number each hunk body line, so the numbers a `:lines` spec expects can be read off rather than counted by hand. Numbering counts **every** body line, context lines included — line 1 of a hunk is often a context line, not the first change. Passing a `:lines` spec turns the same gutter on automatically and marks selected lines with `>`. Human output only; ignored under `--porcelain`. |
 | `--file <path>` | Restrict hash matching to hunks in this file. May be repeated to match any of several files. |
 | `--files-from <path>` | Read file paths from `<path>`, one per line; `-` reads stdin. Composes with repeated `--file` (the lists are merged). NUL-separated input is auto-detected, so `git ls-files -z \| git hunk add --files-from -` is safe for paths containing newlines. |
-| `--ref <refspec>` | Source the diff from a git ref. **Single ref** (e.g. `HEAD~1`, `abc1234`) is shorthand for `<ref>^..<ref>` — that commit's diff (`git show` semantics). **Range** (e.g. `main..HEAD`) is the literal diff between two refs. Initial commits (no parent) diff against the empty tree. Combines with `--staged` for ref vs index comparison. |
+| `--ref <refspec>` | Source the diff from a git ref. **Single commit** (e.g. `HEAD~1`, `abc1234`) means that commit's changes against its first parent. **Range** (e.g. `main..HEAD`) is the diff between two commits, as `git diff` reads it. An unresolvable ref fails with `error: bad revision '<ref>'`. A root commit diffs against the empty tree. Combines with `--staged` for ref vs index comparison. |
 | `--porcelain` | Machine-readable output: metadata header line + raw diff lines + blank separator. |
 | `--tracked-only` | Only show hunks from tracked files. |
 | `--untracked-only` | Only show hunks from untracked files. |
@@ -174,6 +197,8 @@ Same error types as `add`:
 | `error: no hunk matching '<sha>'` | No hunk matches the prefix (with optional file filter) |
 | `error: ambiguous prefix '<sha>' -- matches multiple hunks` | Multiple hunks match the prefix |
 | `no unstaged changes` / `no staged changes` | Nothing to diff |
+| `no changes in '<ref>'` / `no staged changes relative to '<ref>'` | Nothing to diff under `--ref` |
+| `error: bad revision '<ref>'` | `--ref` names something git cannot resolve |
 | `error: at least one <sha> argument required` | No SHA arguments provided |
 
 ---
@@ -199,7 +224,7 @@ git-hunk add [<sha[:lines]>...] [--file <path>] [--all] [--porcelain] [--unified
 | `--file <path>` | Restrict hash matching to hunks in this file — **scoping, not addition**: a SHA living in an unlisted file will not resolve. To stage whole files *and* specific hunks, use two commands (hashes stay stable in between). When used without SHAs, stages all hunks in the file. May be repeated to match any of several files. |
 | `--files-from <path>` | Read file paths from `<path>`, one per line; `-` reads stdin. Composes with repeated `--file` (the lists are merged). NUL-separated input is auto-detected, so `git ls-files -z \| git hunk add --files-from -` is safe for paths containing newlines. |
 | `--all` | Stage all unstaged hunks. No SHA arguments required. |
-| `--ref <refspec>` | Source the diff from a git ref. **Single ref** (e.g. `HEAD~1`, `abc1234`) is shorthand for `<ref>^..<ref>` — that commit's diff (`git show` semantics). **Range** (e.g. `main..HEAD`) is the literal diff between two refs. Enables cherry-picking or reverting individual hunks from past commits (pair with `--3way` when context has drifted). |
+| `--ref <refspec>` | Source the diff from a git ref. **Single commit** (e.g. `HEAD~1`, `abc1234`) means that commit's changes against its first parent. **Range** (e.g. `main..HEAD`) is the diff between two commits, as `git diff` reads it. An unresolvable ref fails with `error: bad revision '<ref>'`. Enables cherry-picking or reverting individual hunks from past commits (pair with `--3way` when context has drifted). |
 | `--3way` | When applying a patch fails because surrounding context has drifted, fall back to a 3-way merge instead of erroring. May leave unmerged index entries on conflict. Useful with `--ref <past-commit>`. |
 | `--dry-run` | Report what would be staged and exit, touching neither the index nor the worktree. Reports the input hunks (`would stage <sha>[:lines]  <file>`), not post-apply result hashes — a result hash only exists once the patch has been applied. `git apply --check` rejects `--3way`, so a stage that would only succeed via 3-way is reported as a failure. |
 | `--porcelain` | Tab-separated machine-readable output. See [output format](output.md#porcelain-format-1). |
@@ -247,7 +272,10 @@ git-hunk add a3f7c21 --no-color                  # disable color output
 | `error: no hunk matching '<sha>'` | No hunk matches the prefix (with optional file filter) |
 | `error: ambiguous prefix '<sha>' -- matches multiple hunks` | Multiple hunks match the prefix |
 | `error: patch did not apply cleanly` | Index changed since hunks were listed |
+| `error: changes from '<ref>' do not apply cleanly to the index (try --3way)` | The `--ref` hunk's context no longer matches the index |
 | `no unstaged changes` | Nothing to stage |
+| `no changes in '<ref>'` | `--ref` names an empty commit or range |
+| `error: bad revision '<ref>'` | `--ref` names something git cannot resolve |
 | `error: at least one <sha> argument required` | No SHA arguments and no `--all`/`--file` flag |
 
 ---
@@ -276,7 +304,7 @@ git-hunk commit [<sha[:lines]>...] -m <message> [--file <path>] [--all] [--amend
 | `--all` | Commit all unstaged hunks. No SHA arguments required. |
 | `--file <path>` | Restrict hash matching to hunks in this file — **scoping, not addition**: a SHA living in an unlisted file will not resolve. To commit whole files *and* specific hunks, use two commands (hashes stay stable in between). When used without SHAs, commits all hunks in the file. May be repeated to match any of several files. |
 | `--files-from <path>` | Read file paths from `<path>`, one per line; `-` reads stdin. Composes with repeated `--file` (the lists are merged). NUL-separated input is auto-detected, so `git ls-files -z \| git hunk add --files-from -` is safe for paths containing newlines. |
-| `--ref <refspec>` | Source the diff from a git ref. **Single ref** (e.g. `HEAD~1`, `abc1234`) is shorthand for `<ref>^..<ref>` — that commit's diff (`git show` semantics). **Range** (e.g. `main..HEAD`) is the literal diff between two refs. Initial commits (no parent) diff against the empty tree. |
+| `--ref <refspec>` | Source the diff from a git ref. **Single commit** (e.g. `HEAD~1`, `abc1234`) means that commit's changes against its first parent. **Range** (e.g. `main..HEAD`) is the diff between two commits, as `git diff` reads it. An unresolvable ref fails with `error: bad revision '<ref>'`. A root commit diffs against the empty tree. |
 | `--3way` | When applying a patch fails because surrounding context has drifted, fall back to a 3-way merge instead of erroring. Either succeeds cleanly or leaves `<<<<<<<` conflict markers. Useful with `--ref <past-commit>`. |
 | `--tracked-only` | Only include hunks from tracked files. |
 | `--untracked-only` | Only include hunks from untracked files. |
@@ -301,11 +329,11 @@ git-hunk commit --dry-run a3f7 -m "check first"       # preview without committi
 
 ### Behavior
 
-- Commits through a throwaway temp index (`GIT_INDEX_FILE`): HEAD is read into a temporary index, only the target hunks are staged there, and `git commit` runs against it. Hooks fire normally and see exactly the content being committed.
+- Commits through a throwaway temp index (`GIT_INDEX_FILE`): HEAD is read into a temporary index (the empty tree on an unborn branch, where the commit is the first), only the target hunks are staged there, and `git commit` runs against it. Hooks fire normally and see exactly the content being committed.
 - The user's real index is never rewritten — existing staged changes are untouched throughout; only the specified hunks are committed. After the commit, the real index is re-synced with the new HEAD for the committed paths.
 - A crash at any point mid-commit leaves the index and staged work untouched (at worst a stray temp file in `/tmp`); rerunning needs no recovery step.
 - The worktree is not modified — only HEAD and the index change.
-- With `--amend`, seeds the temp index from `HEAD~1` and uses `git commit --amend`.
+- With `--amend`, uses `git commit --amend`; the temp index is still seeded from HEAD, so the amended commit keeps everything HEAD changed. On an unborn branch there is nothing to amend, as git says.
 - With `--dry-run`, validates the patch with `git apply --check` and prints "would commit" lines without committing.
 - Legacy crash recovery: a stale `.git/index.hunk-backup` left by an interrupted commit from an older version is still restored automatically.
 - If the post-commit index re-sync fails, a warning is printed but the exit code is 0 (the commit succeeded).
@@ -320,6 +348,7 @@ git-hunk commit --dry-run a3f7 -m "check first"       # preview without committi
 | `error: -m <message> is required` | No `-m` flag provided (and not `--dry-run`) |
 | `error: --staged is not supported by commit` | `--staged` flag used |
 | `error: commit aborted by hook` | Pre-commit or commit-msg hook rejected the commit |
+| `error: you have nothing to amend` | `--amend` on an unborn branch (no commits yet), as `git commit --amend` refuses it |
 | `error: patch did not apply cleanly` | Hunks don't apply to a clean HEAD index |
 | `warning: commit succeeded but index sync failed` | Post-commit index sync failed (non-fatal) |
 
@@ -346,7 +375,7 @@ git-hunk reset [<sha[:lines]>...] [--file <path>] [--all] [--porcelain] [--unifi
 | `--file <path>` | Restrict hash matching to hunks in this file — **scoping, not addition**: a SHA living in an unlisted file will not resolve. To unstage whole files *and* specific hunks, use two commands (hashes stay stable in between). When used without SHAs, unstages all hunks in the file. May be repeated to match any of several files. |
 | `--files-from <path>` | Read file paths from `<path>`, one per line; `-` reads stdin. Composes with repeated `--file` (the lists are merged). NUL-separated input is auto-detected, so `git ls-files -z \| git hunk add --files-from -` is safe for paths containing newlines. |
 | `--all` | Unstage all staged hunks. No SHA arguments required. |
-| `--ref <refspec>` | Source the diff from a git ref. **Single ref** (e.g. `HEAD~1`, `abc1234`) is shorthand for `<ref>^..<ref>` — that commit's diff (`git show` semantics). **Range** (e.g. `main..HEAD`) is the literal diff between two refs. Enables cherry-picking or reverting individual hunks from past commits (pair with `--3way` when context has drifted). |
+| `--ref <refspec>` | Source the diff from a git ref. **Single commit** (e.g. `HEAD~1`, `abc1234`) means that commit's changes against its first parent. **Range** (e.g. `main..HEAD`) is the diff between two commits, as `git diff` reads it. An unresolvable ref fails with `error: bad revision '<ref>'`. Enables cherry-picking or reverting individual hunks from past commits (pair with `--3way` when context has drifted). |
 | `--3way` | When applying a patch fails because surrounding context has drifted, fall back to a 3-way merge instead of erroring. May leave unmerged index entries on conflict. Useful with `--ref <past-commit>`. |
 | `--dry-run` | Report what would be unstaged and exit, touching neither the index nor the worktree. Output mirrors `add --dry-run` with the `would unstage` verb. |
 | `--porcelain` | Tab-separated machine-readable output. See [output format](output.md#porcelain-format-1). |
@@ -373,6 +402,7 @@ git-hunk reset a3f7c21 --no-color               # disable color output
 
 - Reads staged diff (`--cached`), matches SHA prefixes, applies the patch in reverse via `git apply --cached --reverse`.
 - With `--all`, unstages every staged hunk. With `--file` and no SHAs, unstages all hunks in that file.
+- A copy (under `diff.renames=copies`) is unstaged from the copy alone: it stays staged as a copy of its source without the hunk, and the source's index entry is untouched.
 - Captures target-side (unstaged) hunks before and after applying to detect merges.
 - On success, prints one line per **result hunk** to stdout: `unstaged {applied...} [+{consumed}...] → {result}  {file}`. When unstaging causes a merge with an existing unstaged hunk, the consumed hash appears with a `+` prefix.
 - With `--verbose`, prints a count summary to stderr: `N hunk(s) unstaged`. Appends `(M merged)` when target-side hunks were consumed.
@@ -381,7 +411,7 @@ git-hunk reset a3f7c21 --no-color               # disable color output
 
 ### Errors
 
-Same error types as `add`, with `no staged changes` instead of `no unstaged changes`.
+Same error types as `add`, with `no staged changes` instead of `no unstaged changes` (under `--ref`, `no changes in '<ref>'` as for `add`).
 
 ---
 
@@ -406,10 +436,10 @@ git-hunk restore [<sha[:lines]>...] [--file <path>] [--all] [--dry-run] [--porce
 | `--file <path>` | Restrict hash matching to hunks in this file — **scoping, not addition**: a SHA living in an unlisted file will not resolve. To restore whole files *and* specific hunks, use two commands (hashes stay stable in between). When used without SHAs, restores all hunks in the file. May be repeated to match any of several files. |
 | `--files-from <path>` | Read file paths from `<path>`, one per line; `-` reads stdin. Composes with repeated `--file` (the lists are merged). NUL-separated input is auto-detected, so `git ls-files -z \| git hunk add --files-from -` is safe for paths containing newlines. |
 | `--all` | Restore all unstaged hunks. No SHA arguments required. |
-| `--ref <refspec>` | Source the diff from a git ref. **Single ref** (e.g. `HEAD~1`, `abc1234`) is shorthand for `<ref>^..<ref>` — that commit's diff (`git show` semantics). **Range** (e.g. `main..HEAD`) is the literal diff between two refs. Enables cherry-picking or reverting individual hunks from past commits (pair with `--3way` when context has drifted). |
-| `--3way` | When applying a patch fails because surrounding context has drifted, fall back to a 3-way merge instead of erroring. Either succeeds cleanly or leaves `<<<<<<<` conflict markers in the worktree. Useful for undoing hunks from history with `--ref`. |
+| `--ref <refspec>` | Source the diff from a git ref. **Single commit** (e.g. `HEAD~1`, `abc1234`) means that commit's changes against its first parent. **Range** (e.g. `main..HEAD`) is the diff between two commits, as `git diff` reads it. An unresolvable ref fails with `error: bad revision '<ref>'`. Enables cherry-picking or reverting individual hunks from past commits (pair with `--3way` when context has drifted). |
+| `--3way` | When applying a patch fails because surrounding context has drifted, fall back to a 3-way merge instead of erroring. Either succeeds cleanly or leaves `<<<<<<<` conflict markers in the worktree. Useful for undoing hunks from history with `--ref`; without `--ref` the hunk always applies and `--3way` changes nothing. |
 | `--dry-run` | Preview what would be restored without modifying the worktree. Uses `git apply --check`. |
-| `--force` | Required to restore untracked files (they are deleted permanently). |
+| `--force` | Required to restore untracked files, which git has no copy of (a whole one is deleted). |
 | `--porcelain` | Tab-separated machine-readable output. |
 | `--tracked-only` | Only include hunks from tracked files. |
 | `--untracked-only` | Only include hunks from untracked files. |
@@ -442,12 +472,12 @@ git-hunk restore a3f7c21 --no-color                  # disable color output
 - All matched hunks are applied in a single `git apply` invocation (atomic).
 - With `--all`, restores every unstaged hunk. With `--file` and no SHAs, restores all hunks in that file.
 - With `--dry-run`, validates via `git apply --reverse --check` without modifying the worktree.
-- Staged changes are unaffected — only the worktree is modified.
+- Staged changes are unaffected — only the worktree is modified. With `--3way` too: a hunk that applies, directly or merged, changes the worktree alone. Only a merge that conflicts touches the index, recording the conflict as `git apply --3way` and `git stash apply` do (`<<<<<<<` markers in the file, unmerged entries with what was staged as "ours"); resolve it and `git add` the file, as for any conflict. A file that needs merging must match the index first (`error: <path>: does not match index` otherwise).
 - On success, prints one line per restored hunk to stdout: `restored {sha7}  {file}`. SHA in yellow for human mode.
 - With `--dry-run`, verb is `would restore` (human) or `would-restore` (porcelain).
 - With `--verbose`, prints a count summary to stderr: `N hunk(s) restored` or `N hunk(s) would be restored`.
 - With `--porcelain`, output is tab-separated: `verb\tsha7\tfile`.
-- Untracked files require `--force` to restore. Without `--force`, any matched untracked hunk causes exit 1 with an error message. With `--force`, untracked files are deleted permanently.
+- Untracked files require `--force` to restore: git has no copy of them. Without `--force`, any matched untracked hunk causes exit 1 with an error message. With `--force`, a whole untracked file is deleted permanently, and a line selection removes just those lines.
 - Exits 1 if any SHA prefix doesn't match or is ambiguous.
 - Exits 1 if the patch doesn't apply (worktree changed since listing).
 
@@ -459,9 +489,11 @@ git-hunk restore a3f7c21 --no-color                  # disable color output
 | `error: invalid hex in sha prefix: '<sha>'` | Prefix contains non-hex characters |
 | `error: no hunk matching '<sha>'` | No hunk matches the prefix (with optional file filter) |
 | `error: ambiguous prefix '<sha>' -- matches multiple hunks` | Multiple hunks match the prefix |
-| `error: <sha> (<file>) is an untracked file -- use --force to delete` | Untracked file matched without `--force` (bypassed by `--dry-run`) |
+| `error: <sha> (<file>) is an untracked file -- restoring it cannot be undone; use --force` | Untracked file matched without `--force` (bypassed by `--dry-run`) |
 | `error: patch did not apply cleanly` | Worktree changed since hunks were listed |
+| `error: changes from '<ref>' do not apply cleanly to the worktree (try --3way)` | The `--ref` hunk's context no longer matches the worktree |
 | `no unstaged changes` | Nothing to restore |
+| `no changes in '<ref>'` | `--ref` names an empty commit or range |
 | `error: at least one <sha> argument required` | No SHA arguments and no `--all`/`--file` flag |
 
 ---
@@ -481,7 +513,7 @@ git-hunk count [--staged] [--file <path>] [--unified <n>]
 | `--staged` | Count staged hunks (HEAD vs index) instead of unstaged (index vs worktree) |
 | `--file <path>` | Only count hunks for the given file path. May be repeated to match any of several files. |
 | `--files-from <path>` | Read file paths from `<path>`, one per line; `-` reads stdin. Composes with repeated `--file` (the lists are merged). NUL-separated input is auto-detected, so `git ls-files -z \| git hunk add --files-from -` is safe for paths containing newlines. |
-| `--ref <refspec>` | Source the diff from a git ref. **Single ref** (e.g. `HEAD~1`, `abc1234`) is shorthand for `<ref>^..<ref>` — that commit's diff (`git show` semantics). **Range** (e.g. `main..HEAD`) is the literal diff between two refs. Initial commits (no parent) diff against the empty tree. Combines with `--staged` for ref vs index comparison. |
+| `--ref <refspec>` | Source the diff from a git ref. **Single commit** (e.g. `HEAD~1`, `abc1234`) means that commit's changes against its first parent. **Range** (e.g. `main..HEAD`) is the diff between two commits, as `git diff` reads it. An unresolvable ref fails with `error: bad revision '<ref>'`. A root commit diffs against the empty tree. Combines with `--staged` for ref vs index comparison. |
 | `--tracked-only` | Only count hunks from tracked files. |
 | `--untracked-only` | Only count hunks from untracked files. |
 | `--unified <n>` / `-U<n>` / `--unified=<n>` | Number of context lines (default: git's `diff.context` or 3). Affects hunk splitting and therefore count. |
@@ -534,7 +566,7 @@ git-hunk check [--staged] [--exclusive] [--allow-empty] [--file <path>] [--porce
 | `--staged` | Check against staged hunks (HEAD vs index) instead of unstaged (index vs worktree) |
 | `--exclusive` | Assert the provided hashes are the ONLY hunks (scoped by `--file` if given) |
 | `--allow-empty` | Allow zero SHA arguments (useful with `--exclusive` to assert no hunks exist) |
-| `--ref <refspec>` | Source the diff from a git ref. **Single ref** (e.g. `HEAD~1`, `abc1234`) is shorthand for `<ref>^..<ref>` — that commit's diff (`git show` semantics). **Range** (e.g. `main..HEAD`) is the literal diff between two refs. Initial commits (no parent) diff against the empty tree. Combines with `--staged` for ref vs index comparison. |
+| `--ref <refspec>` | Source the diff from a git ref. **Single commit** (e.g. `HEAD~1`, `abc1234`) means that commit's changes against its first parent. **Range** (e.g. `main..HEAD`) is the diff between two commits, as `git diff` reads it. An unresolvable ref fails with `error: bad revision '<ref>'`. A root commit diffs against the empty tree. Combines with `--staged` for ref vs index comparison. |
 | `--file <path>` | Scope all lookups to hunks in this file. May be repeated to match any of several files. |
 | `--files-from <path>` | Read file paths from `<path>`, one per line; `-` reads stdin. Composes with repeated `--file` (the lists are merged). NUL-separated input is auto-detected, so `git ls-files -z \| git hunk add --files-from -` is safe for paths containing newlines. |
 | `--porcelain` | Machine-parseable tab-separated output (reports all entries) |
@@ -594,7 +626,7 @@ git-hunk stash pop
 | Subcommand | Description |
 |------------|-------------|
 | `push` | Stash hunks (default, keyword optional). |
-| `pop` | Restore the most recent stash via `git stash pop`. No other flags or args accepted. |
+| `pop` | Restore the most recent stash, merging its hunks into files that have other unstaged changes, where `git stash pop` refuses. No other flags or args accepted. |
 
 ### Arguments
 
@@ -610,7 +642,7 @@ git-hunk stash pop
 | `--files-from <path>` | Read file paths from `<path>`, one per line; `-` reads stdin. Composes with repeated `--file` (the lists are merged). NUL-separated input is auto-detected, so `git ls-files -z \| git hunk add --files-from -` is safe for paths containing newlines. |
 | `--all` | Stash all unstaged hunks. Excludes untracked files by default (like `git stash`). Use `-u`/`--include-untracked` to include them. |
 | `-u`, `--include-untracked` | Include untracked files when using `--all`. Not needed when targeting untracked hunks by explicit hash. |
-| `-m`, `--message <msg>` | Custom stash message. If omitted, auto-generates from affected file paths. |
+| `-m`, `--message <msg>` | Custom stash message, recorded as `git stash push -m` records it: `On <branch>: <msg>`. |
 | `--tracked-only` | Only include hunks from tracked files. |
 | `--untracked-only` | Only include hunks from untracked files. |
 | `--porcelain` | Tab-separated machine-readable output. |
@@ -636,19 +668,27 @@ git-hunk stash a3f7c21 --porcelain              # machine-readable output
 ### Behavior
 
 - Reads unstaged diff, matches each SHA prefix to a hunk, creates a git stash containing those hunks, then removes them from the worktree.
-- The stash is a real git stash entry visible in `git stash list`, `git stash show`, and `git stash pop`.
-- Uses a two-diff strategy to ensure correct stash content even when the index is dirty.
+- The entry has the same shape as `git stash push --keep-index [-u] -- <paths>`, restricted to the chosen hunks: HEAD as its base, the index as it stands as its index commit (`stash^2`), and the index plus the stashed hunks as its tree. The index is left as it was, as with `--keep-index`.
+- Every git stash command treats it as it would that native entry. `git stash show` compares with HEAD, so it lists staged changes as well as the stashed hunks (`git diff stash^2 stash` shows the stashed hunks alone). `git stash pop` and `git stash pop --index` both put the hunks back unstaged and keep what is staged; `--index` also re-stages whatever was staged at stash time, should it have been unstaged since.
+- Git never applies a stash onto a file with unstaged changes: after stashing some of a file's hunks and not others, or editing the file again, `git stash pop` is refused, with nothing lost. `git hunk stash pop` merges the hunks back instead (below).
 - With `--all`, stashes tracked hunks only (matching `git stash` behavior). Use `-u`/`--include-untracked` to include untracked files. Explicit hash targeting always works for untracked hunks regardless of `-u`.
 - Untracked files are stored using git's native 3-parent stash format (HEAD, index, untracked tree). `git stash pop` restores them as untracked files. Executable file permissions are preserved.
-- Auto-generates a stash message from affected file paths (e.g., `git hunk stash: src/main.zig, src/args.zig`) unless `-m` is provided.
+- The message is the one `git stash push` would write: `WIP on <branch>: <sha> <subject>`, or `On <branch>: <msg>` with `-m`.
+- Refuses to stash while the index has unmerged paths, as `git stash` does.
+- Refuses while the index holds any intent-to-add entry (`git add -N`, e.g. a rename's new side), as `git stash` does: `error: cannot stash while '<path>' is intent-to-add` for each, a hint, exit 1, nothing changed. This applies even when stashing other files, because no pop could restore that stash while the entry stands. Stage the file with `git add`, or make it untracked again with `git rm --cached`.
 - On success, prints one line per stashed hunk to stdout: `stashed {sha7}  {file}`. SHA in yellow for human mode.
 - With `--verbose`, prints a count summary to stderr: `N hunk(s) stashed`.
 - With `--verbose`, prints a hint to stderr: `hint: use 'git stash list' to see stashed entries, 'git hunk stash pop' to restore`.
 - With `--porcelain`, output is tab-separated: `stashed\t{sha7}\t{file}`.
-- `pop` runs `git stash pop` and prints `popped stash@{0}` to stderr. Rejects all other flags and arguments.
+- `pop` restores `stash@{0}` and prints `popped stash@{0}` to stderr. Rejects all other flags and arguments.
+  - Where `git stash pop` can restore the entry, it does, so the result is git's own, and for a `git hunk stash` entry the same as `git stash pop --index`'s.
+  - Where git would refuse because a file the entry changes has other unstaged changes, the entry's worktree changes (`git diff stash^2 stash`) are merged into the worktree instead, file by file, as `git merge-file` merges them; the index is left as it is. The stashed hunks come back unstaged beside the file's other changes and whatever is staged stays staged.
+  - A conflict is left as `git stash pop` leaves one: markers in the file (labelled `Updated upstream` for the worktree and `Stashed changes` for the entry, honouring `merge.conflictStyle`), unmerged index entries for it (the index at stash time, the worktree before the pop, the entry), git's `CONFLICT (...)` line on stderr, and `The stash entry is kept in case you need it again.`; exit 1. Paths without a conflict are merged all the same. A binary or symlink changed on both sides conflicts and keeps the worktree's version. The entry is dropped only when everything went back cleanly.
+  - Untracked files come back as git restores them, never over a file already there: `<path> already exists, no checkout`, then `error: could not restore untracked files from stash`, exit 1. That is checked before anything is restored, so a refused pop changes nothing (git's own pop merges the tracked changes first).
+  - The merge is not attempted, and git's refusal stands, for a submodule change, an index with unmerged paths, or an entry whose staged changes to a file have left the index since, as a `git stash push` without `--keep-index` takes them: merging only its worktree changes would lose them.
 - Line specs (`sha:lines`) are rejected: `error: line specs not supported for stash`.
 - `--include-untracked` conflicts with `--tracked-only` — error if both given.
-- `git apply` failures during worktree cleanup are handled gracefully (error returned, not process exit).
+- If the stashed changes cannot be taken back out of the worktree once the entry is stored, the entry stays, the worktree keeps the changes, and stash exits 1 saying so, as `git stash` stops with "Cannot remove worktree changes".
 - Exits 1 if any SHA prefix doesn't match, is ambiguous, or if there are no unstaged changes.
 
 ### Errors
@@ -663,6 +703,12 @@ git-hunk stash a3f7c21 --porcelain              # machine-readable output
 | `error: pop does not accept arguments or flags` | `pop` used with other flags or arguments |
 | `error: --include-untracked cannot be combined with --tracked-only` | Conflicting filter flags |
 | `no unstaged changes` | Nothing to stash |
+| `error: cannot stash while the index has unmerged paths` | A merge conflict is unresolved |
+| `error: cannot stash while '<path>' is intent-to-add` | The index holds a `git add -N` entry; `git add` it, or `git rm --cached` it |
+| `error: you do not have the initial commit yet` | The branch is unborn: a stash entry is a commit on top of HEAD, as `git stash` says |
+| `CONFLICT (content): Merge conflict in <path>` | `pop`: a stashed hunk overlaps a change made since; resolve it and `git add` the file. The entry is kept |
+| `<path> already exists, no checkout` / `error: could not restore untracked files from stash` | `pop`: an untracked file in the entry is in the way; nothing was restored |
+| `error: cannot remove the stashed changes from the worktree` | The entry was stored as `stash@{0}` but the worktree still has its changes; `git stash drop` to keep working on them, or remove them from the worktree to finish the stash |
 | `error: at least one <sha> argument required` | No SHA arguments and no `--all`/`--file` flag |
 
 ---

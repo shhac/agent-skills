@@ -199,7 +199,7 @@ hash on the target side:
 | `{applied}` | Hash the user asked to stage/unstage. Space-separated if multiple inputs merged. May include `:line-spec`. |
 | `+{consumed}` | Existing target-side hash absorbed into the result. Prefixed with `+`. |
 | `→` | Unicode arrow (U+2192). Always present. |
-| `{result}` | New target-side hash. Comma-separated if line-spec produced multiple outputs. `?` if no mapping found. |
+| `{result}` | New target-side hash, as `list` (or `list --staged`) then shows it. Comma-separated if line-spec produced multiple outputs, or for an unstaged rename (the new path, now untracked, and the old path's deletion). `?` if no mapping found. |
 | `{file}` | File path (two spaces after result hash). |
 
 ### Examples
@@ -239,6 +239,18 @@ Unstaging:
 ```
 unstaged 5e2b1a9 → a3f7c21  src/main.zig
 unstaged 5e2b1a9 +dddd789 → a3f7c21  src/main.zig
+```
+
+Unstaging a rename (the new path becomes untracked, the old one reads as deleted):
+
+```
+unstaged b34f350 → 7c745cd,aa914db  new-name.txt
+```
+
+Staging a file's deletion together with the untracked file it moved to, which git stages as a rename (both reported under the rename's hash, as `list --staged` shows it):
+
+```
+staged 7c745cd aa914db → b34f350  new-name.txt
 ```
 
 ### Color (human mode, when TTY)
@@ -418,6 +430,11 @@ error: sha prefix too short (minimum 4 chars): 'ab'
 error: patch did not apply cleanly -- re-run 'list' and try again
 no unstaged changes
 no staged changes
+no changes in 'HEAD~1'
+no staged changes relative to 'main'
+error: bad revision 'nope'
+error: changes from 'HEAD~1' do not apply cleanly to the index (try --3way)
+error: --staged compares the index with one commit; 'main..HEAD' is a range
 error: at least one <sha> argument required
 error: unknown command 'badcmd'
 ```
