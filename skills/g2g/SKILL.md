@@ -149,7 +149,10 @@ description: |
   neither does it wait on CI; the merge wait is answered by ancestry from the
   merge commit, never by watching a tip change, because a colleague's push
   changes that too. It merges nothing until every branch has been found
-  landable. Cleanup never fails a descent. It is not journaled and must not
+  landable. Uncommitted work is refused only where the descent would touch it:
+  up front when the checkout is a branch it moves, and before a replay whose
+  preview conflicts (`restack.Plan.NeedsWorkingTree`), which stops part-way
+  rather than rebasing into somebody's changes. Cleanup never fails a descent. It is not journaled and must not
   become so: re-entrancy comes from recomputation, and `restack` stays the only
   resumable operation.
 - How much of the structure a command means is `--scope`, and it means the same
@@ -363,9 +366,14 @@ description: |
 
 - `github comment` keeps one marked comment per pull request listing its stack. Read
   `design-docs/stack-comment.md` before changing it. It always keeps the whole
-  stack the branch belongs to — each comment lists its own ancestors and
-  descendants, so a partial run would leave comments disagreeing — and has no
-  `--scope`. Merged history lives in the comments' own data line because
+  stack the branch belongs to — each comment draws the stack from its own pull
+  request (the path from the base flat, what forks off it counted beside the
+  branch it grew from, everything above it in full), so a partial run would
+  leave comments disagreeing — and has no `--scope`. Every line names its
+  branch. A comment is current when the `rev=` on its marker line — a hash of
+  the stack and data line, never the footer — matches what this run would
+  write; do not go back to comparing text, which depends on GitHub returning
+  the body byte for byte. Merged history lives in the comments' own data line because
   nothing local remembers a pruned branch; keep only what GitHub says merged,
   never create a comment on a merged pull request, never edit a comment without
   the marker, and leave alone one the viewer cannot edit or a pull request
