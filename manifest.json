@@ -127,10 +127,10 @@
   },
   "g2g": {
     "repo": "shhac/g2g",
-    "tag": "v0.38.1",
-    "commit": "342c93af8d6b72c4fdf208368795d487ef678478",
-    "version": "0.38.1",
-    "synced_at": "2026-09-29T11:41:22Z"
+    "tag": "v0.39.0",
+    "commit": "01dbb4ba4640ae0bc44b9091ee42db6721448f49",
+    "version": "0.39.0",
+    "synced_at": "2026-09-30T11:19:52Z"
   },
   "agent-motion": {
     "repo": "shhac/agent-motion",
