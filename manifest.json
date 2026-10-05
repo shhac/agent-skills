@@ -141,9 +141,9 @@
   },
   "crew-code-review": {
     "repo": "shhac/crew-code-review",
-    "tag": "v0.53.0",
-    "commit": "7191acdcb3d43aa0c961ad8cf4a1925db16110cf",
-    "version": "0.53.0",
-    "synced_at": "2026-10-04T05:22:58Z"
+    "tag": "v0.54.0",
+    "commit": "bbcdc34e5f66ce4b41950fb88443bd185b0719d4",
+    "version": "0.54.0",
+    "synced_at": "2026-10-05T15:31:04Z"
   }
 }
