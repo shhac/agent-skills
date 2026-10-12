@@ -4,8 +4,12 @@
 
 ## Global flags
 
-- `--auth <label>` — which stored credential to use.
-- `--scope <team-slug|id>` / `-s` — which team to act on (omit = personal/default).
+- `--auth <label>` — which stored credential to use; token precedence is explicit
+  `--auth` → `$VERCEL_TOKEN` → stored default. Never print the token.
+- `--scope <team-slug|id>` / `-s` — which team to act on; does not select a
+  credential. Precedence: flag → `$VERCEL_SCOPE` → `$VERCEL_TEAM_ID` → stored
+  default → personal account. Empty values fall through; `--scope ""` does not
+  override an environment or stored default.
 - `--format <json|yaml|jsonl>` / `-f` — override output format.
 - `--full` — raw API payload instead of the compact projection.
 - `--max-body-chars <n>` — truncate long log/body fields (`0` = per-command default, `-1` = unlimited).
@@ -32,10 +36,40 @@ There is no command that prints the secret. That is intentional.
 | Command | Notes |
 |---|---|
 | `scope list` (`ls`) | teams the credential can reach (`GET /v2/teams`) |
-| `scope current` | active scope + default credential |
+| `scope current` | scope flag or stored scope default + stored default credential; does not resolve environment overrides or the `--auth` selection |
 | `scope set-default <slug>` | empty arg → personal account |
 | `scope member list` | `--limit --cursor --all`; members of the active team scope — uid, username, email, role, confirmed. Needs a team scope (not the personal account) |
 | `scope member get <id\|email\|username>` | one member, matched client-side; single-arg (not multi-id). NDJSON one line by default; `--format json\|yaml` gives the object; `--full` is raw pretty-JSON passthrough |
+
+### Diagnose selection before replacing a token
+
+An unexpired token can lack team access; check selection before replacing a token
+or asking the user to re-authenticate.
+
+1. Run `agent-vercel auth list` for stored labels, usernames, defaults and secret
+   status. Run `agent-vercel scope current` for the scope flag or stored scope
+   default and stored default credential. Neither command identifies an environment
+   token; `scope current` also ignores scope environment overrides and `--auth`.
+   Check whether `$VERCEL_TOKEN` is set without printing its value.
+2. For a candidate stored credential, run
+   `agent-vercel scope list --auth <label>` to discover reachable team slugs and ids.
+   `auth list` does not show team grants. If using only `$VERCEL_TOKEN`, omit
+   `--auth`; scope listing remains unscoped even when a team default is configured.
+3. Retry the failed read with both selectors explicit, for example:
+   `agent-vercel project list --auth <label> --scope <team-slug|id> --limit 1`.
+   Omit `--auth` only when deliberately using the environment token.
+4. If the team read still fails, run `agent-vercel auth test --auth <label>`
+   (omit `--auth` for the environment token). This verifies the owner via
+   `GET /v2/user`, not team access. If owner verification succeeds, investigate
+   team grants, membership and SSO requirements. If credential verification fails,
+   follow the structured error and hint; use `auth add --form` when replacement
+   is needed.
+
+Use per-command selectors during diagnosis. Change persistent defaults only when
+requested; do not rotate a working credential to fix a selection mistake.
+For a personal-account read, both scope environment variables and the stored
+scope default must be empty; `--scope ""` cannot bypass them. Do not reset the
+stored default without the user's request.
 
 ## deployment
 

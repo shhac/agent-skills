@@ -37,18 +37,26 @@ rollback, cancel, redeploy, change env vars, add/remove/verify domains, change
 aliases, or purge the cache unless the user explicitly asked — those require
 `--yes`.
 
-## Credential vs scope (read this first)
+## Select the credential and team separately
 
-One Vercel access **token** reaches many **teams**. They are separate axes:
+A Vercel token can reach one or more teams, depending on its grants.
+**`--scope` never switches credentials**, even when a credential has the same label.
 
-- `auth` manages the credential (the **secret**; currently an access token) —
-  kept in the macOS Keychain, never printed. There is no command to read it back
-  out; never ask the user to paste a token into chat, and don't try to retrieve
-  one.
-- `scope` selects which team (account) to act on — not a secret.
+- `--auth <label>` selects a stored credential. Token precedence:
+  `--auth` → `$VERCEL_TOKEN` → stored default.
+- `--scope <team-slug|id>` selects the team. Scope precedence:
+  `--scope` → `$VERCEL_SCOPE` → `$VERCEL_TEAM_ID` → stored default → personal account.
 
-Pick per command: `--auth <label>` (which credential) and
-`--scope <team-slug|id>` (which team; omit for the default / personal account).
+Empty selectors fall through; `--scope ""` does not force the personal account.
+The token is a secret stored in the Keychain, never printed or readable through
+the CLI. Never retrieve the token, print `$VERCEL_TOKEN`, or ask for a token in chat.
+Labels and team identifiers can still be private; use placeholders in shared examples.
+
+For a scope 403, unexpected account, or re-authentication hint, read
+[Diagnose selection before replacing a token](references/commands.md#diagnose-selection-before-replacing-a-token).
+`scope current` ignores environment overrides and `--auth`; `auth test` verifies
+the owner, not team access. Diagnose with per-command selectors; change persistent
+defaults only when requested.
 
 ## Setup (once)
 
@@ -120,10 +128,12 @@ agent-vercel api call GET /v6/deployments --query 'state=ERROR&limit=5'
 agent-vercel api call POST /v2/deployments/dpl_…/aliases --body '{"alias":"x"}' --yes
 ```
 
-## More detail
+## Read references when the examples stop covering the task
 
-- [references/commands.md](references/commands.md) — full command map, flags, and which are `--yes`-gated
-- [references/output.md](references/output.md) — NDJSON + meta-line contract, compact vs `--full`, timestamps, pagination
+- Read [references/commands.md](references/commands.md) for commands or flags absent
+  from the examples, credential/scope diagnosis, or a command's `--yes` gating.
+- Read [references/output.md](references/output.md) when handling pagination,
+  unresolved ids, output formats, compact vs `--full` payloads, timestamps or truncation.
 
 Live docs from the binary: `agent-vercel usage` is the overview;
 `agent-vercel <domain> usage` has per-domain detail.

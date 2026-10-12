@@ -85,10 +85,10 @@
   },
   "agent-vercel": {
     "repo": "shhac/agent-vercel",
-    "tag": "skill-v0.16.2",
-    "commit": "a751ce00a4cc86b1e01a15c7d61cf215755c78b4",
-    "version": "0.16.2",
-    "synced_at": "2026-08-31T22:26:44Z"
+    "tag": "skill-v0.16.0+skill.3",
+    "commit": "4945c4ab421074157d4a26ffd0d9549f5d8286ab",
+    "version": "0.16.0+skill.3",
+    "synced_at": "2026-10-12T15:14:21Z"
   },
   "git-hunk": {
     "repo": "shhac/git-hunk",
