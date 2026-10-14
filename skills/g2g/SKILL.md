@@ -85,7 +85,10 @@ description: |
   `design-docs/sync-points.md`) record where this clone and the remote last
   agreed. Against one, `pull` drops a commit the remote dropped and leaves one
   dropped here for `push`, which publishes it; a commit the remote dropped that
-  is still here makes `push` refuse. Every such commit is listed by branch, id
+  is still here makes `push` refuse. A commit replayed with a changed patch
+  (a resolved conflict) pairs with the version the sync point holds by author,
+  author date and subject and reads as replaced, not dropped: `push` publishes
+  it and `pull` takes it. Every such commit is listed by branch, id
   and subject (and in `--json` `commits`); `pull --keep <commit>` keeps one;
   `--strict` on `pull`, `push`, `submit` and `land` refuses any drop, and any
   branch differing with no sync point. Membership in a sync point is by commit
@@ -126,8 +129,9 @@ description: |
   forgetting would strand is recorded on the branch below **only where Git shows
   that branch is an ancestor of the child** — what a pull leaves — with the
   same check and fork point `track` uses; that is recording where it already
-  sits, not reparenting around it. Anything else, including a child outside the
-  selection, still refuses, offering `g2g pull --prune` and then a
+  sits, not reparenting around it, and applies to a child outside the
+  selection too. Without that ancestry it still refuses, offering
+  `g2g pull --prune` and then a
   `g2g track --branch <child> --parent <branch>` per child. Do not widen the
   rehome to a guess.
 - `pull --prune` composes the two over one selection: the pull, then the
@@ -180,6 +184,11 @@ description: |
   a `delete`/`fold`/`rename` whose rollback could not finish are all this; a descent that changed nothing is an ordinary failure.
   `stoppedPartWay` marks it and nothing
   further is printed, because the report is already on stdout.
+- A replay that stops — in `restack`, in `pull`, or above a merge in `land` —
+  is one journaled restack, finished the same way whichever command left it:
+  resolve the named files, `git add` them, `g2g restack --continue` (or
+  `--abort`), then rerun `land` if a descent was interrupted. A forked stack
+  stops once per conflicting line of descent.
 - A trunk can be declared: `track --as-trunk` names a second one (`staging`
   beside `main`), and `--into <branch> --by squash|merge|rebase` says where it
   lands when finished. It has no parent edge — so it is never replayed and
@@ -501,7 +510,9 @@ description: |
   boundary validates/revalidates first, publishes through `push` (and so
   refuses a remote holding work this checkout lacks), creates only missing
   draft PRs, links the eligible stack only when `--link` asks, then keeps the
-  stack comments unless `--no-comment`. Linking is opt-in because GitHub will
+  stack comments unless `--no-comment`. It leaves out branches above the
+  target with no commits of their own and no open pull request, such as one
+  just made with `create`, and marks them in the preview. Linking is opt-in because GitHub will
   not merge a linked pull request through `gh pr merge`; `land` refuses a
   linked stack in its preview and names `g2g github unlink --branch <target>
   --stack-number <n>`. Do not make linking the default again.
