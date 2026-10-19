@@ -93,7 +93,7 @@ versions and provenance.
 | agent-mongo | Read-only MongoDB CLI | [shhac/agent-mongo](https://github.com/shhac/agent-mongo) |
 | agent-motion | Find out what happens in a video over time without watching it | [shhac/agent-motion](https://github.com/shhac/agent-motion) |
 | agent-notion | Search, read, and edit Notion pages, databases, and blocks | [shhac/agent-notion](https://github.com/shhac/agent-notion) |
-| agent-posthog | Investigate PostHog product analytics and write HogQL | [shhac/agent-posthog](https://github.com/shhac/agent-posthog) |
+| agent-posthog | Investigate PostHog product analytics and manage feature flags | [shhac/agent-posthog](https://github.com/shhac/agent-posthog) |
 | agent-postmark | Triage Postmark email delivery, bounces, and suppressions across outbound and inbound messages,… | [shhac/agent-postmark](https://github.com/shhac/agent-postmark) |
 | agent-slack | Read and act on Slack from the terminal | [shhac/agent-slack](https://github.com/shhac/agent-slack) |
 | agent-sql | Read-only-by-default SQL CLI supporting PostgreSQL, CockroachDB, MySQL, MariaDB, SQLite, DuckDB… | [shhac/agent-sql](https://github.com/shhac/agent-sql) |
