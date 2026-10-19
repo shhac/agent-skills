@@ -32,7 +32,7 @@ JSON payload).
   and changes nothing unless you pass `--yes`; show the user the plan first.
   `--dry-run` forces a plan even when `--yes` is present.
 - Over MCP, writes are **off** until a person runs
-  `agent-posthog config mcp-writes on` on the machine serving MCP (this covers
+  `agent-posthog config set mcp_writes on` on the machine serving MCP (this covers
   every PostHog write: flag commands, `query cancel`, and `api post` outside
   query endpoints). A refused write is `fixable_by: human`;
   ask the user, never work around it. Once on, the bridge adds `--yes` after the
@@ -94,9 +94,12 @@ Prefer `schema events list` and `schema properties list` before writing HogQL, s
 queries use real event/property names.
 
 `query json` and `api post` take a body as `--json '<inline>'` (use this over
-MCP) or `--body <file>`; `-` reads stdin, which is `query json`'s default.
+MCP) or `--body <file>`; `-` reads stdin, which is `query json`'s default
+(`--json` wins over it; an explicit `--body` with `--json` is refused).
 `query wait` prints a failed query's status on stdout, then exits 1 with
-PostHog's error. `api post` outside `/query/` paths needs `--yes`.
+PostHog's error. `api post` needs `--yes` except for
+`/api/environments|projects/<id>/query/` paths; raw paths with `.` or `..`
+segments are refused.
 
 ## Output
 
@@ -108,6 +111,10 @@ collapses to one `{"data":[…], "@unresolved":[…]}` envelope, even for a sing
 id. Item-level misses stay on stdout and exit 0; a command-level failure (auth,
 permissions, network, or a missing org/project/environment, checked before any
 request) goes to stderr with exit 1 and empty stdout.
+
+Lists print one NDJSON line per record, then `{"@pagination":{"has_more":true,"next_url":…}}`
+when more remain (`--all` follows it); `--format json|yaml` gives one
+`{"data":[…],"@pagination":{…}}` document.
 
 Lists, queries, and investigation commands default to NDJSON; every command
 (including `auth`, `config`, and `usage`) honors `--format`. Read output prunes
@@ -262,7 +269,8 @@ and `payload` must match exactly:
 ```
 
 It prints one line per case (`pass`, `fail` with mismatches, or `error`), then
-`@summary`, and exits 1 unless every case passes. `--parallel N` (up to 8)
+`@summary` (under `--format json|yaml`, one `{"data":[…],"@summary":…}`
+document), and exits 1 unless every case passes. `--parallel N` (up to 8)
 evaluates N cases at once; output stays in case order, and `--timeout` bounds
 the whole suite. An `error` means PostHog could
 not evaluate the flag; it is never a false result. Tests evaluate the **saved**
@@ -273,6 +281,8 @@ this flag" errors; wait a moment and run it again. `distinct_id` defaults to
 
 `reach` counts users whose properties pass each condition's filters before
 rollout; conditions overlap, so the counts do not add up to the audience.
+Like `test`, it prints one line per condition, or `{"data":[…],"@note":…}`
+under `--format json|yaml`.
 
 ## Staging recipes
 
