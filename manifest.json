@@ -92,10 +92,10 @@
   },
   "git-hunk": {
     "repo": "shhac/git-hunk",
-    "tag": "v0.21.0",
-    "commit": "49e0fe59b44e595313858fff208f486cc05588e9",
-    "version": "0.21.0",
-    "synced_at": "2026-10-23T13:37:57Z"
+    "tag": "v0.21.1",
+    "commit": "a33b2f4baa7e2aca22ce69cbb41147be9f552934",
+    "version": "0.21.1",
+    "synced_at": "2026-10-23T15:38:41Z"
   },
   "lin": {
     "repo": "shhac/lin",
