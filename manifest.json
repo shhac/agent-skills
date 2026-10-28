@@ -145,5 +145,12 @@
     "commit": "6111dc3c2d5520a61186660d25fa4541894d2ff3",
     "version": "0.60.0",
     "synced_at": "2026-10-28T13:45:55Z"
+  },
+  "agent-figma": {
+    "repo": "shhac/agent-figma",
+    "tag": "skill-v0.1.0",
+    "commit": "8ad01c10e435f3652d22d4c7870b3e83f08c5e5b",
+    "version": "0.1.0",
+    "synced_at": "2026-10-28T14:33:42Z"
   }
 }
