@@ -227,7 +227,11 @@ description: |
   direct push would overwrite a reviewer's commit and then merge it. It aims
   every pull request at the trunk rather than at the branch below it, which is
   where each correctly sits now and which will not exist by the time its turn
-  comes. Direct merges wait for GitHub to see the push and merge, without
+  comes. A pull request on a branch the descent is about to delete is moved in
+  that branch's cleanup, before the deletion, because a base deleted with a
+  push closes it for good: the next step up, and any survivor outside a
+  `--scope path` selection, decided once as `Plan.Moves`. A refused move keeps the branch
+  and stops part-way. Direct merges wait for GitHub to see the push and merge, without
   waiting for CI; merge propagation is answered by ancestry from the
   merge commit, never by watching a tip change, because a colleague's push
   changes that too. It merges nothing until every branch has been found
@@ -358,6 +362,12 @@ description: |
   ancestor; arbitrary feature descendants are refused. Parent-tip starts retain
   ordinary create behavior. Create at the pinned OID, verify PlanTrack's fork,
   and roll back to the original HEAD, never to a different start revision.
+- A branch whose fork point is past its trunk's local tip and on the trunk's
+  known upstream (`graph.AheadOnUpstream`) sits on a trunk that lags; it is not
+  stale and nothing moved back. `status` advises `pull`, and `restack` and a
+  `pull` that leaves a held trunk give it no step while still replaying the
+  rest of the stack. A deliberately rewound trunk is restacked onto by name,
+  `restack --branch <b> --onto <trunk>`, per run and never stored.
 - `up`/`down`/`top`/`bottom` are the only commands that act without `--apply`,
   and that exception is deliberate: moving the checkout changes no ref, record
   or remote, and `git switch` refuses to clobber local changes. Do not add a
@@ -395,8 +405,8 @@ description: |
   movement, not structural drift. Validate against Git at read time instead.
 - `restack` is the only code permitted to rewrite history, and only through
   `internal/git`'s two engines. `git replay` previews exact object ids without
-  moving a ref and applies cleanly without touching the checkout; `git rebase
-  --update-refs` is used only once a preview has established the rewrite
+  moving a ref and applies cleanly without touching the checkout; a per-branch
+  `git rebase --onto` is used only once a preview has established the rewrite
   conflicts, and it runs in the user's own working tree because resolving a
   conflict needs a tree they can edit. Do not move it to a private worktree:
   git refuses to check out a branch already checked out elsewhere, and the
@@ -552,6 +562,15 @@ description: |
 
 ## Use safely
 
+- After command discovery, use the resolved command's `--help` to inspect the
+  current interface (for example, `g2g github --help` after a Homebrew
+  install).
+- Start with `g2g status` (offline, one stack) or `g2g doctor` (offline, every
+  stack, only what is wrong); reach for `g2g github status` when the question
+  is about pull requests.
+- Read the preview before any `--apply`. `pull` never changes GitHub; the
+  commands that do are `submit`, `land` and everything under `g2g github`
+  except `status` and `adopt`.
 - For a person who wants an editor workflow, `g2g submit --edit` opens one
   temporary JSON document, not a buffer per PR. It retains the document on all
   failures and after preview; successful `--edit --apply` cleans it up unless
@@ -610,7 +629,7 @@ description: |
   is to feed the next one: `Inspect` is a single `gh api graphql` naming the
   repository through `{owner}`/`{repo}`, and revisions resolve through
   `git.Client.ResolveAll` in one process.
-- Per-branch Git reads go through `link.eachBranch`, which runs them several at
+- Per-branch Git reads go through `parallel.Each`, which runs them several at
   a time and cancels the rest on the first failure. Write results into a slice
   index the read was given, never a shared map, and keep any fake it can reach
   safe to call concurrently. `go test -race ./internal/link ./internal/cli`.
@@ -640,13 +659,3 @@ description: |
   `--stack-number` to override, previews first, and only `--apply` invokes
   `gh stack unstack`. It must never alter Graphite, branches, PR content,
   reviewers, or PR lifecycle.
-
-- After command discovery, use the resolved command's `--help` to inspect the
-  current interface (for example, `g2g github --help` after a Homebrew
-  install).
-- Start with `g2g status` (offline, one stack) or `g2g doctor` (offline, every
-  stack, only what is wrong); reach for `g2g github status` when the question
-  is about pull requests.
-- Read the preview before any `--apply`. `pull` never changes GitHub; the
-  commands that do are `submit`, `land` and everything under `g2g github`
-  except `status` and `adopt`.
