@@ -141,10 +141,10 @@
   },
   "crew-code-review": {
     "repo": "shhac/crew-code-review",
-    "tag": "v0.60.0",
-    "commit": "6111dc3c2d5520a61186660d25fa4541894d2ff3",
-    "version": "0.60.0",
-    "synced_at": "2026-10-28T13:45:55Z"
+    "tag": "v0.61.0",
+    "commit": "e7dbe0340dd613d813b5897d4ecec5af05540d1a",
+    "version": "0.61.0",
+    "synced_at": "2026-10-31T20:57:19Z"
   },
   "agent-figma": {
     "repo": "shhac/agent-figma",
