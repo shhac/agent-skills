@@ -10,7 +10,7 @@
 #   SKILL_NAME  — skill folder name (e.g. agent-notion)
 #   SRC_DIR     — absolute path to the skill folder in the source checkout
 #   SRC_REPO    — source repository (e.g. shhac/agent-notion)
-#   SRC_TAG     — tag being published (v1.2.3 or skill-v1.2.3)
+#   SRC_TAG     — tag being published (v1.2.3, or skill-v1.2.3-1 for a skill-only revision)
 #   SRC_COMMIT  — source commit SHA
 set -euo pipefail
 

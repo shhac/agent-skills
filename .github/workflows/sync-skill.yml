@@ -2,6 +2,11 @@
 # skill into shhac/agent-skills. Mirrors the homebrew-tap release pattern —
 # the caller holds a deploy key (SKILLS_DEPLOY_KEY) with write access here.
 #
+# Tags: vX.Y.Z is a CLI release (the skill syncs with it); skill-vX.Y.Z-N is
+# the Nth skill-only revision describing CLI release vX.Y.Z (e.g.
+# skill-v0.52.0-1 after v0.52.0). Don't borrow a future CLI number for a
+# skill-only tag. Details: docs/publishing.md#tagging-conventions.
+#
 # Caller snippet (see docs/publishing.md):
 #
 #   on:

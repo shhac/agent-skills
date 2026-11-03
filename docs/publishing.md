@@ -93,12 +93,29 @@ python3 scripts/check-skill.py path/to/skills/<name>/
 - **`vX.Y.Z`** — a normal CLI release. The skill is synced automatically as
   part of the release, so the distributed skill always snapshots the behavior
   of the released binary.
-- **`skill-vX.Y.Z`** — a skill-only release (better triggers, examples,
-  wording) between CLI releases. **Convention:** the tagged skill content
-  must describe the *released* CLI. Because skill edits land in the same
-  commit as the CLI changes they document, `main`'s skill can be ahead of the
-  released binary — don't `skill-v` tag a commit that documents unreleased
-  flags or output shapes.
+- **`skill-vX.Y.Z-N`** — a skill-only release (better triggers, examples,
+  wording) between CLI releases. `X.Y.Z` is the CLI release the skill
+  describes (the latest `vX.Y.Z` tag), and `N` counts skill revisions of it
+  from 1: after `v0.52.0`, the skill-only tags are `skill-v0.52.0-1`,
+  `skill-v0.52.0-2`, … The tag then names the binary its content documents,
+  and never borrows the number of a future CLI release (`skill-v0.52.1`
+  would claim a `v0.52.1` that doesn't exist yet, or later means something
+  else). Find the next `N` with:
+
+  ```bash
+  latest=$(git tag --list 'v*' --sort=-v:refname | head -1)
+  git tag --list "skill-${latest}-*" --sort=-v:refname | head -1
+  ```
+
+  `-N` is a revision, not a semver pre-release: nothing here compares skill
+  versions (the plugin bundle is versioned by sync date), so it never sorts
+  "before" `X.Y.Z`. Older tags such as `skill-v0.47.3` or
+  `skill-v0.16.0+skill.3` predate this convention.
+
+  **Convention:** the tagged skill content must describe the *released* CLI.
+  Because skill edits land in the same commit as the CLI changes they
+  document, `main`'s skill can be ahead of the released binary — don't
+  `skill-v` tag a commit that documents unreleased flags or output shapes.
 
 ## What the sync does
 
