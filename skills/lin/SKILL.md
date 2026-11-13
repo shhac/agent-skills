@@ -214,6 +214,7 @@ lin initiative update name <id> "New Name"
 lin initiative update status <id> active
 lin initiative update description <id> "Updated description"
 lin initiative update owner <id> "alice@example.com"
+lin initiative update owner <id> --clear   # remove the owner (project lead too: lin project update lead <id> --clear)
 lin initiative update content <id> "# Updated body"
 lin initiative update color <id> "#FF5500"
 lin initiative update icon <id> "🚀"
@@ -237,6 +238,7 @@ lin document new "API Design Doc" --project "CRM Actions" --content "# Overview\
 lin document update title <id> "New Title"
 lin document update content <id> "# Updated content"
 lin document update project <id> "Other Project"
+lin document update team <id> ENG          # also: initiative. A document has one parent; there is no "remove from project"
 lin document history <id>                # content edit history (actor IDs + timestamps)
 ```
 

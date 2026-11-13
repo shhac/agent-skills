@@ -18,7 +18,7 @@ Errors print structured JSON to stderr with non-zero exit:
 }
 ```
 
-`fixable_by` values: `agent` (can self-correct), `human` (needs user input), `retry` (transient failure).
+`fixable_by` values: `agent` (can self-correct), `human` (needs user input), `retry` (transient failure). API failures are classified by HTTP status wherever they happen, including uploads, downloads and `api query`: 401/402/403 → `human`, 429/5xx and network errors → `retry`, other 4xx → `agent`.
 
 Empty/null fields are pruned automatically — missing keys mean no value, not `null`.
 
@@ -239,6 +239,23 @@ After `--clear` the field is gone (nulls are pruned), so the output names it ins
 ```
 
 If Linear reports success but the field is still set, the command exits 1 with `fixable_by: human`.
+
+## Lead, owner and document parent updates
+
+`project update lead` and `initiative update owner` echo the value Linear reports, or what was cleared:
+
+```json
+{ "updated": true, "id": "...", "lead": { "id": "...", "name": "Alice Example" } }
+{ "updated": true, "id": "...", "cleared": "owner" }
+```
+
+`document update project|team|initiative` echoes the document's single parent after the move, in the shape `document get` uses for that kind (`project {id,name,slugId}`, `team {id,key,name}`, `initiative {id,name}`):
+
+```json
+{ "updated": true, "id": "...", "team": { "id": "...", "key": "ENG", "name": "Engineering" } }
+```
+
+A clear or move that Linear acknowledges without applying exits 1 with `fixable_by: human`.
 
 ## Customer requests (`issue requests`, `project requests`, `customer requests`)
 

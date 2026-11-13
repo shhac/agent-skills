@@ -26,7 +26,7 @@ Run `lin <command> usage` for detailed per-command docs (e.g., `lin issue usage`
 - `lin project update status <id> <value>` — backlog | planned | started | paused | completed | canceled
 - `lin project update description <id> <value>`
 - `lin project update content <id> <value>` — update the project's markdown body
-- `lin project update lead <id> <user-id>`
+- `lin project update lead <id> <user>` — name, email, or user ID; `--clear` removes the lead. Echoes `"lead":{id,name}` or `"cleared":"lead"`
 - `lin project update start-date <id> <YYYY-MM-DD>`
 - `lin project update target-date <id> <YYYY-MM-DD>`
 - `lin project update priority <id> <value>` — none | urgent | high | medium | low
@@ -55,7 +55,7 @@ Linear "project updates" are timeline posts carrying a health signal — distinc
 - `lin initiative update name <id> <value>`
 - `lin initiative update status <id> <value>` — planned | active | completed
 - `lin initiative update description <id> <value>`
-- `lin initiative update owner <id> <user>` — user name, email, or ID
+- `lin initiative update owner <id> <user>` — user name, email, or ID; `--clear` removes the owner. Echoes `"owner":{id,name}` or `"cleared":"owner"`
 - `lin initiative update content <id> <value>` — markdown body
 - `lin initiative update color <id> <hex>`
 - `lin initiative update icon <id> <emoji>`
@@ -73,6 +73,7 @@ Linear "project updates" are timeline posts carrying a health signal — distinc
 - `lin document update title <id> <value>`
 - `lin document update content <id> <value>`
 - `lin document update project <id> <project>` — project ID, slug, or name
+- `lin document update team <id> <team>` / `lin document update initiative <id> <initiative>` — move the document there. A document has exactly one parent, so moving replaces the old one and there is no way to detach it (Linear ignores a null parent). Each move echoes the new parent and errors if it didn't land.
 - `lin document update icon <id> <emoji>`
 - `lin document update color <id> <hex>`
 
