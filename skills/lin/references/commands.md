@@ -111,13 +111,15 @@ Over MCP (`lin mcp`) the reported `path` is rewritten to a fetchable reference `
 - `lin issue update status <id> <value>` — team-specific workflow state names
 - `lin issue update assignee <id> <user>` — accepts name, email, or user ID
 - `lin issue update priority <id> <priority>` — none | urgent | high | medium | low
-- `lin issue update project <id> <project>` — project ID, slug, or name
+- `lin issue update project <id> <project>` — project ID, slug, or name (a name shared by several projects is refused, listing each slug)
 - `lin issue update estimate <id> <value>` — validated against team estimate scale
-- `lin issue update labels <id> <name1,name2,...>` — accepts label names or IDs
+- `lin issue update labels <id> <name1,name2,...>` — accepts label names or IDs; replaces the issue's labels
 - `lin issue update description <id> <value>`
 - `lin issue update due-date <id> <YYYY-MM-DD>`
 - `lin issue update cycle <id> <cycle-id>` — move issue to a cycle (UUID)
 - `lin issue update parent <id> <parent-id>` — set parent issue (make sub-issue)
+- `lin issue update project|assignee|labels|estimate|due-date|cycle|parent <id> --clear` — remove the value (leave the project, unassign, drop all labels, ...). Passing `""` instead is refused, not matched. status, title and priority can't be cleared (priority: use `none`).
+- Every `issue update` echoes the value Linear now holds: `{"updated":true,"identifier":"ENG-1","project":{"id":"…","name":"…"}}`, or `"cleared":"project"` after `--clear`. See output.md.
 
 ## Comments
 

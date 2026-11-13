@@ -69,6 +69,9 @@ lin issue update estimate ENG-123 5      # validated against team's estimate sca
 lin issue update due-date ENG-123 2025-03-15
 lin issue update cycle ENG-123 <cycle-uuid>
 lin issue update parent ENG-123 ENG-100  # make sub-issue
+lin issue update project ENG-123 --clear # remove from its project (also: assignee, labels, estimate, due-date, cycle, parent)
+# Each update echoes what Linear now holds, e.g. {"updated":true,"identifier":"ENG-123","project":{...}}
+# Never pass "" to unset a field: blank input is refused. A project name shared by several projects is refused with their slugs.
 lin issue comment new ENG-123 "Started investigating"
 lin issue comment new ENG-123 "Replying" --parent <comment-id>   # threaded reply (1 level max)
 lin issue comment new ENG-123 "See attached" --file ./screenshot.png  # upload file(s)

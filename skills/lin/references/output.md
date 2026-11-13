@@ -24,6 +24,15 @@ Empty/null fields are pruned automatically — missing keys mean no value, not `
 
 Error messages include valid values when input is invalid (e.g., unknown status names list all valid states).
 
+Name inputs (project, team, user, label, customer, initiative, document, status) are never matched blank: `""` or whitespace is refused with `"<noun> must not be empty"`. A name that matches several entities is refused rather than picked — Linear allows duplicate project, customer and initiative names — and the error lists each candidate's slug or ID:
+
+```json
+{
+  "error": "ambiguous project: \"Roadmap\" matches 2 projects: Roadmap (slug: a1b2c3, state: started, lead: Alice), Roadmap (slug: d4e5f6, state: backlog), use the slug ID or UUID",
+  "fixable_by": "agent"
+}
+```
+
 ## Get (single + multi)
 
 `get <id>...` takes one or more ids and returns one result per id, in input order. Default output is NDJSON: one line per id — the record, or `{"@unresolved":{"id":"...","reason":"...","fixable_by":"..."}}` for an id that couldn't be resolved (e.g. not found / bad id).
@@ -212,6 +221,24 @@ Includes comment count, customer request counts, branch name, and attachments (e
 linked to the issue (and how many are flagged important). List them with
 `lin issue requests <id>`. Counts are computed over the first 250 linked
 requests.
+
+## Issue update (`issue update <field>`)
+
+Every update echoes the issue identifier and the value Linear reports after the update, in the same shape `issue get` uses, so a mis-resolved input is visible:
+
+```json
+{ "updated": true, "identifier": "ENG-123", "project": { "id": "...", "name": "Bundles self-serve" } }
+```
+
+Echoed keys per subcommand: `status` → `status {id,name,type}`, `assignee {id,name}`, `priority` → `priorityLabel`, `project {id,name}`, `labels [{id,name}]`, `estimate`, `title`, `due-date` → `dueDate`, `cycle {id,number,name}`, `parent {id,identifier}`. `description` is not echoed.
+
+After `--clear` the field is gone (nulls are pruned), so the output names it instead:
+
+```json
+{ "updated": true, "identifier": "ENG-123", "cleared": "project" }
+```
+
+If Linear reports success but the field is still set, the command exits 1 with `fixable_by: human`.
 
 ## Customer requests (`issue requests`, `project requests`, `customer requests`)
 
