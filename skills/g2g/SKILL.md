@@ -200,6 +200,17 @@ description: |
   call (`--no-set-upstream` drops `--set-upstream`; `submit` and `land` carry
   the same flag through to it). Keep the remote default explicit (`origin`),
   validate it, and never fall back to a weaker push mode.
+- Submit refuses before pushing when a mismatched open PR base would contain
+  the proposed head after publication, which GitHub would mark merged irreversibly.
+  A base in `Push.Leases()` uses its proposed local tip; any base left untouched
+  uses its observed remote tip, including waiting and landed branches. Reuse push's
+  observations and batch any missing bases into one Git `RemoteTips` read. Missing
+  refs or unavailable objects provide no merge assertion. The repair is
+  `g2g github retarget` over the selection before publishing. Correctly based PRs
+  remain exempt. `submit.Plan.Refusal(link)` selects linking, preserved-base,
+  existing-PR, then push refusals, in that order; preview, CLI blocking and apply
+  all consume it. Missing-spec requirements remain in the CLI. The check adds no
+  GitHub reads, and `push` stays Git-only.
 - A command that did part of what it was asked and stopped exits `3` — not `0`,
   which told a script the work had finished, and not the failure status, because
   what it achieved is not coming back. `pull` stopping mid-replay, `pull --prune`
@@ -336,6 +347,13 @@ description: |
   invariant; do not pair `Track` with a hand-rolled promotion step, and never
   take the trunk list from the graph as it was before the edge was recorded.
 - `untrack` must never reparent the children it strands. Report them.
+- `track --parent` changing a recorded parent preserves its verified own range,
+  even when the new parent forks from an older trunk. Only `graph.LaterFork`
+  may narrow it on shared ancestry; never widen it to a new merge base. The old
+  fork must resolve and be an ancestor of the branch. Without it, require the
+  new parent's tip in the branch or refuse with `repair.Note` asking to record
+  its actual parent first. The reparent preview names the resulting boundary;
+  restack previews each actual `forkPoint..head` range.
 - `delete`, `fold` and `rename` (`internal/reshape`, which reaches Git and the
   graph and nothing else) act only on branches the g2g graph records and refuse
   the rest naming `g2g track`. `delete` is the one place children are
@@ -460,7 +478,8 @@ description: |
   directory). Which worktree a record belongs to depends on the file it is in,
   never on the absolute path inside it. Every other mutating command refuses
   while any worktree's restack is unfinished (`RequireIdle`). The exceptions
-  are restack, push, submit, create and track: they pass a
+  are restack, push, submit, create, track, github retarget and github comment.
+  They pass a
   `restack.Footprint` and are refused only in the restack's own worktree, or
   when either side moves what the other reads (`RequireApart`). A restack
   checks again after publishing its journal, so two that start at once both
@@ -677,8 +696,9 @@ description: |
   and `labeled` supplies a plain label. Marks are the sole annotation record;
   machine state and worst severity are derived when rendered, never cached
   alongside them. Do not fold two axes into one mark. A merged
-  pull request is `pr✓` and neutral, never grouped with a missing or closed
-  one: it succeeded, and only the leftover branch is a problem.
+  pull request is `pr✓` and neutral only when content is confirmed in the
+  resolved landing trunk. Merges into that trunk with stale local evidence
+  need a trunk refresh; feature-base merges still outside it need replacement.
 - Batch before parallelising, and do not reintroduce a call whose only purpose
   is to feed the next one: `Inspect` is a single `gh api graphql` naming the
   repository through `{owner}`/`{repo}`, and revisions resolve through
@@ -698,6 +718,18 @@ description: |
   missing is `g2g submit`, and submitting work already in the trunk is the bug
   this prevents. What forgets it depends on the source (`g2g prune` for g2g's
   graph, `gt sync` for Graphite), so do not hardcode one.
+- A GitHub `MERGED` lifecycle is not proof of landing in the trunk. Live
+  `github status` checks merged branches through `landed.Into`; submit checks
+  only merged predecessors and qualifies their history in its preview. Both
+  compare against the local trunk, bounded above that trunk rather than a
+  feature parent that may already contain the head. Cherry and whole-branch
+  absorption remain the shared decision, with advisory present/absent/unknown
+  outcomes in `landed.Assess`. A PR merged into the resolved landing trunk whose
+  content is absent or unconfirmed locally needs `g2g pull` to refresh that trunk
+  and reassess, never replacement advice. Only feature-base merges with absent
+  content say “merged into <base>, not landed” and offer `g2g submit`; unavailable
+  feature content stays “landing unconfirmed”. Cached lifecycle observations
+  remain dated history and never evidence for deletion. No GitHub call is added.
 - `github status` is the read-only triage entry point for pull requests. It
   renders one selected path from the resolved g2g or Graphite structure and reports each selected
   PR's native GitHub stack membership from the same batched PR query; keep the
