@@ -175,7 +175,9 @@ description: |
   boundary. By default it edits the recorded graph and deletes no branch.
   `--delete-branches` opts into local deletion; `--forget-missing` also removes
   selected records whose refs are gone. Preview lists both acts separately.
-  Deletion is content-based, refuses every checked-out branch, rechecks heads
+  Deletion is content-based, keeps whole (record and branch) each landed
+  branch a worktree has checked out, and the landed branches under it, while
+  deleting the rest (the way out is `git -C <worktree> switch --detach`), rechecks heads
   and bases, and removes refs under an expected-tip lease. Partial cleanup
   exits `3` with completed work and a scoped retry. Remote branches are untouched.
   A child that
@@ -183,9 +185,11 @@ description: |
   that branch is an ancestor of the child** — what a pull leaves — with the
   same check and fork point `track` uses; that is recording where it already
   sits, not reparenting around it, and applies to a child outside the
-  selection too. Without that ancestry it still refuses, offering
-  `g2g pull --prune` and then a
-  `g2g track --branch <child> --parent <branch>` per child. Do not widen the
+  selection too. Without that ancestry the branch that would strand it is
+  kept and the rest are forgotten (`Plan.Kept`, exit `0`), naming
+  `g2g pull --prune` and a
+  `g2g track --branch <child> --parent <branch>` per child; only when nothing
+  is safe to forget does the whole prune refuse. Do not widen the
   rehome to a guess.
   A branch with no commits of its own is forgotten only where its tip is
   inside its parent (collapsed, or not started). One left on the tip its
@@ -686,6 +690,38 @@ description: |
   there and in `schema_test.go`. `gh pr create` and `gh pr merge` are
   deliberately not batched.
 
+- The search for a squash buried under later edits is remembered in
+  `g2g/landed.json` by commit (`internal/git/verdicts.go`): yes for any base
+  containing the commit that absorbed the branch, and for a no only the
+  commits since the last look are searched. The tip merge always runs,
+  destructive callers ask with `landed.Fresh(ctx)`, only a finished search is
+  kept, and a change to `internal/git/content.go` fails
+  `TestRememberedVerdictsAreTiedToTheRuleThatMadeThem` until `absorbedRules`
+  is bumped or the digest updated.
+- `g2g undo` (`--apply`, `--list`) puts back the newest recorded local
+  operation: branches, g2g's fork-point and sync-point refs, graph edges and
+  the checkout. Entries are the difference between readings before and after
+  `applyFlow.mutate`, cut to `touches`/`changes`, in `g2g/operations.json`.
+  It refuses over anything changed, published or checked out elsewhere
+  since, over a created branch holding the only copy of a commit, and over a
+  commit that is gone; publishing commands write a marker first. Only
+  operations made from this worktree are offered, and a branch an operation
+  merely reads is never recorded as moved by it (`Footprint.Moved`). Local
+  only, no redo. A new mutating command goes in `recorded` with a footprint or
+  `changes`. Read `design-docs/undo.md`.
+- `--snapshot <path>` (`prune`, `restack`) connects a preview to its apply:
+  the preview writes the plan with what it rests on (`snapshot.Rests`, named by
+  the command), and `--apply` with the same file checks that basis and carries
+  out the saved plan without planning. The basis is scoped, never "the whole
+  repository": exact for the branches the plan forgets, records or replays
+  (tip, edge, edges recorded on it, holder) and every ancestor a prune judged
+  them against, "still contains" for a prune's trunks, plus the checkout. A
+  restack also asks again whether a followed worktree is clean and where a
+  remote copy named by `--onto` is. The path must not be an existing file that
+  is not a snapshot, nor, for a restack, an unignored path in the working tree. A plan type written to a
+  snapshot must be plain exported data; `TestEverySnapshottedPlanSurvivesBeingWritten`
+  fails on a field that would not survive. Read `design-docs/snapshots.md`
+  before adding a command or a plan field.
 - Each discovery and revalidation pass has its own planning budget, separate
   from mutation. `G2G_TIMEOUT` raises each default as a minimum and cannot shorten
   a long landing; explicit `--timeout` overrides each ceiling exactly. Validate
